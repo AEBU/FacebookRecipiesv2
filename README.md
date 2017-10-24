@@ -362,3 +362,21 @@ estas librerías.
     }
 
 
+
+6: LoginLayout
+Necesitamos generar nuestro boton de login de Facebook, debemos estar pilas si nos da error en DBFlow, ya que este está acostumbrado a
+get y set, pero en recipe tenemos isFavourite, y nos puede dar un error, por lo que cambiamos a getFavorite o setFavorite
+
+activity_login
+    android:id="@+id/container"
+Usamos este contenedor para mostrar snackbarcks de acuerdo al conteneiner definidos
+
+    <com.facebook.login.widget.LoginButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnLogin"
+        android:layout_centerInParent="true"/>
+Usamo el login Button para ver como es la funcionalidad de nuestro botón
+
+Solucinar Error de Compilación para FacebookActivity
+https://stackoverflow.com/questions/39754070/how-to-solve-facebook-toolsreplace-androidtheme
