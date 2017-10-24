@@ -380,3 +380,83 @@ Usamo el login Button para ver como es la funcionalidad de nuestro botón
 
 Solucinar Error de Compilación para FacebookActivity
 https://stackoverflow.com/questions/39754070/how-to-solve-facebook-toolsreplace-androidtheme
+
+7: LoginConfig
+
+Procedemos a realizar la configuración del login de facebook
+-login
+   --ui
+   ----LoginActivity
+
+En LoginActivity
+    Realizamos las inyecciones de las vistas con Butterknife en este caso solo:
+        @BindView(R.id.btnLogin)
+        LoginButton btnLogin;
+        @BindView(R.id.container)
+        RelativeLayout container;
+
+    Necesitmaso un callback manager de facebook,  y la declaramos como una varible globla, en la documentación de facebook este campo se usa para
+    recordar si alguien accedió a la aplicación
+
+        private CallbackManager callbackManager;
+    Luego del Binding(Butterknife)
+        hacemos la llamada al botón y creamos nuestro callback manager
+            callbackManager= CallbackManager.Factory.create();
+            //Podemos decrile que tenga ciertos permisos, y podemos pedirlos mas tarde con el SDK si queremos
+            btnLogin.setPublishPermissions(Arrays.asList("publish_actions"));
+            //la siguiente es que cuando lo accedemos entrar a Success, Cancel, onError
+            para cada uno de estos la lógica como ya hemos definido
+                    btnLogin.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+                        @Override
+                        public void onSuccess(LoginResult loginResult) {
+                            navigateToMainScreen();
+                        }
+
+                        @Override
+                        public void onCancel() {
+                            Snackbar.make(container, R.string.login_cancel_error, Snackbar.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onError(FacebookException error) {
+                            String msgError = String.format(getString(R.string.login_error), error.getLocalizedMessage());
+                            Snackbar.make(container, msgError, Snackbar.LENGTH_SHORT).show();
+                        }
+                    });
+            Luego vamos al método
+                navigateToMainScreen()
+                //agragamos banderas para que no haya historia
+                    Intent intent=new Intent(this,RecipeMainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                            | Intent.FLAG_ACTIVITY_NEW_TASK
+                            | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+
+            Es posible qu tengamos una sesión iniciada es importante que valide si tengo una con AccessToken
+
+                    if (AccessToken.getCurrentAccessToken() != null) {
+                        navigateToMainScreen();
+                    }
+
+            En onActivityResult podemos llamar a callbackManager con los mismos parámetros que tenemos dentro de este, con esto va a administrar la sesión
+                @Override
+                protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+                    super.onActivityResult(requestCode, resultCode, data);
+                    callbackManager.onActivityResult(requestCode, resultCode, data);
+                }
+        RecipeMainActivity
+            Solo la definimos para ver si ya funciona
+
+
+En string.xml
+        login.error Imposible iniciar sesión %s   -----: este porcentaje S qeu ocurre y que le dé un formato
+
+
+Nota: Problemas dados
+1.- Porque no puedo hacer login con una cuenta diferente a la desarrollador
+2.- Al momento de usarlo debemos tener en cuenta los paquetes y la clase en donde se realiza el login
+
+
+
+Inicio de Login
+https://developers.facebook.com/docs/facebook-login/android
