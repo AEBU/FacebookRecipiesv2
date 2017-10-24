@@ -159,3 +159,102 @@ de datos para poder interactuar, noten que la parte de base de datos lo trabajam
 base a anotaciones, eventualmente pues se van a generar unas clases, con las que voy
 a poder interactuar, a través de esta misma clase "recipe" que va tener métodos adicionales,
 por heredar de "baseModel"
+
+
+4: API Retrofit
+
+Comenzamos a incoporar Retrofit a nuestro proyecto para descargar los datos del servidor (Food2Fork), configurándolo de la siguiente manera:
+
+-api
+    --RecipeService*
+    --RecipeClient*
+    --RecipeSearchResponse
+
+RecipeService,(interfaz) exponemos como vamos a realizar las peticiones, usamos
+    @Get("search")
+
+    Call<RecipeSearchResponse> search(@Query("key") String key,
+                                      @Query("sort") String sort,
+                                      @Query("count") int count,
+                                      @Query("page") int page);
+
+    De la api "search", me va a devolver un RecipeSearchResponse, recibiendo como parámetros, con esto exponemos nuetro API para poder hacer la llamada a nuestro servicio
+        como Query api  key             apiKey
+                        sort            tipo de ordenamiento especial por los mas recientes
+                        count           va a ser uno
+                        page            como un número aleatorio
+
+
+RecipeClient(class)
+    Vamos a definir un objeto "Retrofit" este objeto puedo hacer dos cosas
+        -puedo construirlo en el cliente
+        -puedo recibirlo como un parámetro
+
+En el caso de recibirlo, lo que haría es inyectarlo.
+al construirlo, lo estoy trabajando aquí adentro, entonces la diferencia básica va,
+ser el tipo de prueba que voy a hacer sobre este cliente, porque si lo recibo como un
+parámetro, entonces el testing va ser un poco más granular,
+Par nuestro caso vamos a dejarlo  aquí encerrado, sabiendo que cuando haga las pruebas, voy a poder hacer
+una prueba por encima, no voy a poder hacer la prueba interna, cambiando por ejemplo,
+a donde hago la petición o cambiando como estoy reconociendo o haciendo el proceso "parsing"
+de lo que responde la petición, entonces como va quedar aquí adentro, aquí mismo
+voy a definir, cual es el URL base que voy a utilizar en este caso es "food2fork.com/api/"
+
+            private Retrofit retrofit;
+            private final static String BASE_URL = "http://food2fork.com/api/";
+
+
+Creamos un constructor que no recibe nada, y en el constructor vamos a asignar
+a la variable "Retrofit" un "Retrofit.Builder" y este "Builder" va tener unos parámetros
+como "baseUrl" y usamos la que está aquí especificada, un "addConverterFactory(GsonConverterfactory)"
+punto "create" sino quisiéramos usar "Gson" podemos usar "Jackson" o no usar ninguno, usar
+el que trae por defecto "HTTP" lo que no me va permitir lo que en este caso el "API" está
+enviando, por ultimo le damos construir,
+        public RecipeClient() {
+            retrofit = new Retrofit.Builder()
+                    .baseUrl(BASE_URL)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+        }
+
+
+este cliente a la vez va tener un servicio,
+entonces vamos a hacer un método "public RecipeService getRecipeService" no recibe
+ningún parámetro y vamos a devolver a partir del cliente, la creación de este servicio,
+indicando "RecipeService" que clase es la que tenemos
+
+        public RecipeService getRecipeService() {
+            return retrofit.create(RecipeService.class);
+        }
+
+
+
+RecipeSearchResponse
+La respuesta incluye dos cosas, un conteo de cuantos "Recipe"
+o cuantas recetas tenemos de respuestas y el listado de estas recetas, para nosotros
+este conteo siempre debería ser uno, pero como le vamos a enviar un numero aleatorio,
+es posible que algunas veces sea cero, de todos modos vamos a agregar aquí el conteo,
+y vamos a agregar también un listado de recetas que es lo que vamos a recibir, con esto vamos
+a agregar un "getter" y un "setter" para ambos, para que "Gson" ponga los valores adecuados
+
+    private int count;
+    private List<Recipe> recipes;
+
+    //getters y setters
+
+Pero además vamos a agregar un método que nos va ayudar a nosotros a obtener la primera
+receta que está en este listado, entonces lo que vamos hacer primero, declaramos
+una variable asignada a "null" vamos a devolver esta variable eventualmente pero antes de
+devolverla verificamos: será que "Recipes" esta ¿vacío? en caso no está vacío, entonces
+vamos a asignarle a "recipes.get(0)" estamos obteniendo la primera receta
+Nos va servir para nuestro repositorio donde mandamos a llamar
+-las recetas nuevas, llamar a este método(recipesGetFirst)
+-a partir de la respuesta que va recibir el servicio
+-el servicio lo voy a construir a partir del cliente
+
+Entonces es una cascada de clases, que voy a estar utilizando, pero
+con esto tengo listo lo que necesito con para "Retrofit" ya puedo hacer peticiones al "API"
+
+Retrofit
+
+http://square.github.io/retrofit/
