@@ -258,3 +258,107 @@ con esto tengo listo lo que necesito con para "Retrofit" ya puedo hacer peticion
 Retrofit
 
 http://square.github.io/retrofit/
+
+
+5: SetupLibs
+Comenzamos a realizar nuestra integración con librerías de acuerdo
+
+-lib
+    --base
+        EventBus
+        ImageLoader
+    --di
+        LibsModule
+    GlideImageLoader
+    GreenRobotEventBus
+
+Nos ayudamos de las librerías del proyecto anterior como era "TwitterAPP"
+Ahora en el "ImagesLoader base" voy a agregar
+un método que se llama "setOnFinishedImageLoadingListener(Object object)" de tal forma que ejecute este "Listener"
+cuando termine la carga como el "imagesLoader" esta genérico, estoy recibiendo un objeto
+"Glide" tiene un tipo de objeto especifico,
+pero si lo pongo aquí, estoy amarrando este "imageLoader" hacia "Glide" y no quiero hacer
+eso
+    public interface ImageLoader {
+        void load(ImageView imgAvatar, String url);
+        void setOnFinishedImageLoadingListener(Object listener);
+    }
+
+
+
+Clase "GladeImageLoader"
+va ser muy parecida la que ya tenía, con algunas cosas adicionales, en el caso anterior
+vamos a tener un "implements ImageLoader"y nos forza a tener
+métodos, vamos a definir aquí de la misma forma del caso anterior:
+    "RequestListener"   "glideRequestManager"
+    "RequestManager"    "requestListener"
+
+Constructor en el que vamos a recibir únicamente el "manager"
+
+en setOnFinishedImageLoadingListener
+hacer un "cast" el método es "set" lo único que tengo que hacer aquí, es verificar que
+el objeto que estoy recibiendo, sea instancia de "RequestListener" y si, si lo es, entonces
+lo asignamos, haciendo un "cast" asignamos aquí el "listener" es un objeto, vamos a
+tener que hacer el "cast"
+
+Ahora hasta el momento habíamos cargado aquí, sin asignar
+este "listener" entonces vamos a verificar si acaso, el "listener" es diferente de "null"
+vamos hacer una asignación ligeramente diferente pero si no, va ser muy parecido a lo que ya
+teníamos que era "RequestManager" punto "load" cargamos el "URL" punto lo vamos a poner en
+"Caches" ".diskCachesStrategy(DiskCacheStrategy.ALL)" ".centerCrop" ".into(ImageView)"
+    //debemos tener en cuenta que esto está hecho con RequesOptions para RequestManager verificar nuestro analisis
+
+        private RequestManager glideRequestManager;
+        private RequestListener onFinishedLoadingListener;
+
+        public GlideImageLoader(RequestManager glideRequestManager) {
+            this.glideRequestManager = glideRequestManager;
+        }
+La diferencia
+va ser que si tengo un "imageLoaderListener" previo a hacer el "into" le vamos a poner
+".listener(onfinishedLoadingListener)", entonces en el caso de que previo a llamar
+a "loading" haya hecho un "set onfinishedLoadingListener" en ese caso se va a mandar a llamar este "listener"
+por si acaso quisiera en un momento no usarlo, tengo esta alternativa de cargarlo, sin necesidad
+de hacer uso del "listener"
+
+        RequestOptions requestOptions = new RequestOptions();
+            requestOptions
+                    .centerCrop()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL);
+
+
+        if (onFinishedLoadingListener!=null){
+            glideRequestManager
+                    .load(url)
+                    .apply(requestOptions)
+                    .listener(onFinishedLoadingListener)
+                    .into(imgAvatar);
+        }else {
+            glideRequestManager
+                    .load(url)
+                    .apply(requestOptions)
+                    .into(imgAvatar);
+        }
+
+di
+    LibsModule
+
+Inyección de dependencias, voy a usar de referencia del módulo de la aplicación anterior,
+entonces creamos aquí, el "libsModule" vamos a corregir el "import" porque era de "TwitterClient"
+y ya no tiene nada que ver con lo que tengo actualmente, tiene el "imageLoader" "EventBus"
+necesita que lo importe, entonces vamos a importar la base adecuada que es "libs.base"
+pero ahora ya no voy a estar trabajando con un fragmento si no con una actividad, porque
+en el caso anterior, tenía un fragmento como encargado de devolver la App de realizar la
+carga de datos y ahora va ser una actividad, entonces corregimos esto y corregimos el método
+que provee, Estamos proveyendo el "imageloader"
+el "RequestManager" la actividad, todo está listo, ahora puedo proceder a hacer uso de
+estas librerías.
+
+
+    private Activity activity;
+
+    public LibsModule(Activity activity) {
+        this.activity = activity;
+    }
+
+
