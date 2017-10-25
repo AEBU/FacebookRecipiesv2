@@ -381,7 +381,7 @@ Usamo el login Button para ver como es la funcionalidad de nuestro botón
 Solucinar Error de Compilación para FacebookActivity
 https://stackoverflow.com/questions/39754070/how-to-solve-facebook-toolsreplace-androidtheme
 
-7: LoginConfig
+7: LoginConfigFacebook
 
 Procedemos a realizar la configuración del login de facebook
 -login
@@ -460,3 +460,82 @@ Nota: Problemas dados
 
 Inicio de Login
 https://developers.facebook.com/docs/facebook-login/android
+
+
+7: ImplementsMainRecipes_Layout
+
+Nos toca ahora implementar la pantalla principal de la recetas, que vamos a tener en la pantalla
+principal
+    1: Primero en la barra superior
+            tenemos un ícono va ser un elemento de menu pero con icono asignado, que nos va a llevar otra pantalla, a la pantalla de favoritos guardados
+            vamos a tener aquí la posibilidad de cerrar sesión, con el menu de los tres puntos, el contenido principal de "ImageView" que nos va mostrar la imagen de la receta,
+
+
+    2: Luego dos botones,
+            uno para rechazar y uno para guardar
+            Además vamos a poder hacer "swipe" es decir el efecto de arrastrar, hacia la derecha para conservarlo y hacia la izquierda para rechazarlo
+
+vamos a empezar implementando este "Layout" para el manejo del "swipe"
+
+    3: Vamos a agregar un "ProgressBar" que aquí no se ve, en lo que cargamos en el siguiente contenido
+
+
+
+Podríamos haber usado un "ViewPage" talvez, es un componente que está pensado
+que pueda tener varios contenidos, fragmentos usualmente, me refiero al "ViewPage" y aquí
+yo quiero este mismo contenido, se quede siempre y solo cambie la imagen, a la hora de hacer
+un "drag" hacia cualquiera de los dos lados, Por lo que hemos decidido hacer un detector de gestos
+para manejar este "swipe" vamos a ponerle una animación, que nos muestre cuando va
+saliendo hacia un lado y hacia el otro
+
+
+
+
+Tenemos un "RelativeLayout"
+que ya existe en este momento, vamos a agregar algunas cosas, como un "ImageView" y vamos
+a agregar también un "LinearLayout" horizontal, para los botones, centrado y dentro de ese
+"LinearLayout" vamos a agregar "ImageButton" otro "ImageButton", por ultimo agregamos
+un "ProgressBar" que este centrado
+
+
+En Source
+un identificador al contenedor principal, este identificador, va ser "LayoutContainer"
+y luego tenemos el "ImageView" quiero que este centrado horizontalmente, quiero que
+este alineado, con el "parent" y quisiera que tenga cierto margen, porque
+como esta como con "wrapContent" el tamaño me puede salir diferente, primero, voy a querer
+ponerle un margen a la izquierda "marginLeft" vamos ceder el "Activity_Horizontal_Margen"
+y lo mismo hacia la derecha,
+
+
+Tenemo un "LinearLayout" horizontal, esto
+queremos que lo ancho, utilice únicamente lo necesario, va ser "wrap_content" de alto
+también, va estar centrado de forma horizontal y le vamos a poner un identificador, hasta
+"below" el "ImageView" tiene identificador como "imgRecipe" entonces va estar "below" de "recipe" y también
+va tener su propio identificador, este "Layout", le vamos a poner "LinearLayout"
+
+
+
+Para los buttons "ImagesButtons" el primero
+va tener de "Id/ImgDismiss" y el segundo "imgKeep"
+
+
+
+Usamos los íconos
+    icono "delete", para cuando no quiero conservarlo,
+    ícono que se llama "btn_star_big_on" estos son los dos iconos que tengo
+
+
+    Para cambiar el color puedo usar tint o background
+
+
+
+
+Luego el "progressBar" es de tamaño grande, "wrap_content",
+tiene un identificador, vamos a ponerle que este centrado, en el padre, "centerInParent = true" entonces
+le vamos a agregar que la visibilidad este "Gone" a ver cómo nos queda, "View" "Visivility Gone" de la misma forma vamos a quitarle el "source" que tenía el "ImageView" antes de
+quitárselo voy a hacer algo al "height" le voy a poner un tamaño fijo, entonces vamos
+a referenciar a "dimen" y "dimen/recipes_main_images_height"
+le vamos a poner un valor fijo, "300DP", solo me aseguro que todo esté bien, este es el
+tamaño que va tener, la imagen, se ven los botones, sin ningún problema, y ahora sí
+le puedo quitar el "source" para continuar con la implementación.
+
