@@ -539,3 +539,122 @@ le vamos a poner un valor fijo, "300DP", solo me aseguro que todo esté bien, es
 tamaño que va tener, la imagen, se ven los botones, sin ningún problema, y ahora sí
 le puedo quitar el "source" para continuar con la implementación.
 
+
+
+Commit8: MVP_RecipeMain
+
+Creamos la estructura MVP
+
+-recipemain
+    --events
+        RecipeMainEvent
+    --ui
+        view
+Como ya sabemos comenzamos por la vista
+En recipeMainView interfaz
+
+Aquí vamos a colocar todo lo necesario para la vista, vamos a tener un "progressBar" entonces necesito
+mostrar ese progreso o esa barra de progreso y también necesito ocultarla, a la vez, voy
+a tener elementos de "ui" que voy a querer mostrar y ocultar "UIElements", en base al
+"ProgressBar" es decir el "Progressbar" no va estar al mismo tiempo que los elementos
+de "ui" vamos a tener también animaciones que el presentador se va encargar de llamar,
+entonces.
+Vamos a tener una animación para salvar la receta y otra para no salvarla,
+Luego, cuando decida salvar, la receta, vamos a tener de cierta forma una reacción de la
+vista, y a la vez, es posible que esta receta no sea la única que yo visualice, sino que
+visualice varias, entonces voy a tener un "setRecipe" cuando lo reciba, para a cambiar
+la imagen y voy a recibir los datos de la receta, esos datos son los que voy a guardar
+si decido hacerlo, y vamos a poner un "onGetRecipeError" por si acaso, por si tenemos un error, ok,
+que pasa, si decido, deshacerme de esta receta, en este caso yo no voy hacer nada, pero una
+posible acción seria, guardar el identificador en un listado, persistente en la base datos,
+y cuando saque el numero aleatorio asegurarme que ese listado no está allí, aquí voy
+a correr el riesgo que el numero aleatorio se repita vamos a hacer un rango amplio,
+pero es posible que se repita y en ese caso pues, el usuario va ver dos veces, la misma
+receta es posible que ya este guardada, o es posible que haya decidido no conservarla,
+
+    void showProgress();
+    void hideProgress();
+    void showUIElements();
+    void hideUIElements();
+    void saveAnimation();
+    void dismissAnimation();
+
+    void onRecipeSaved();
+    void setRecipe(Recipe recipe);
+    void onGetRecipeError(String error);
+
+
+Vamos a crear una nueva interfaz para el presentador le llamamos "RecipeMainPresenter"
+y es una interfaz, aprovechando esto vamos a crear de una vez el paquete de "ui" y vamos
+a mover allí, tanto la actividad, como su respectiva vista, van a incluir a "onCreate", "onDestroy" para
+registrar, deregistrar y destruir la vista, y luego las acciones posibles que tengo, ósea
+que tengo un "dismissRecipe" con lo que no voy a guardar nada en ningún lugar, si me
+interesa llamar la animación de la vista un "getNextRecipe" para obtener el siguiente
+receta de cocina, un "SaveRecipe" en donde me interesa que este objeto se quede guardado
+en la base de datos, y el evento en el que voy a recibir, información del "eventBus"
+entonces "recipeMainEvent" va ser lo que reciba aquí,
+Creamos el Event de una vez
+Voy a agregar un método adicional, que este me va a servir con motivos de "Testing" vamos a hacer un
+"RecipeMainView getView" y varias de las decisiones que voy a tomar en la implementación de esta
+aplicación van a ser por hacer "Testing" y eventualmente vamos a hacer pruebas de esta
+aplicación en la última semana, se los comento porque este "getView" no lo voy a mandar a
+llamar aquí. pero me va servir para hacer la prueba, de que la vista se volvió "null"
+al llamar un "destroy",
+
+    void onCreate();
+    void onDestroy();
+
+    void dismissRecipe();
+    void getNextRecipe();
+    void saveRecipe(Recipe recipe);
+    void onEventMainThread(RecipeMainEvent event);
+
+    RecipeMainView getView();
+
+
+
+Una interfaz, para el interactuador, voy a tener dos interactuadores, vamos a llamarle
+a uno "SaveRecipeInteractor" y a este interfaz le vamos a poner un único método "execute"
+que recibe un objeto a guardar
+
+public interface GetNextRecipeInteractor {
+    void execute();
+}
+
+Vamos a hacer también un, "getNextRecipeInteractor" y a este le vamos a poner un método "execute" que no recibe nada,
+
+public interface SaveRecipeInteractor {
+    void execute(Recipe recipe);
+}
+
+
+Para terminar
+estructura vamos a hacer un "RecipeMainRepository" aquí vamos a poner los métodos necesarios
+"getNextRecipe" "saveRecipe" y también "setRecipePage" la idea es que voy a generar un numero aleatorio en el interactuador
+o en algún otro lugar solo el repositorio va exponerlo y con ese número aleatorio voy
+a hacerle un "set" para saber que numero voy a pedir, además voy a tener un par de constantes
+que vamos a colocar aquí en el repositorio, estas constantes están relacionadas con el
+"API" y son:
+    -cuantas recetas quiero obtener, voy a obtener una nada más,
+    -de qué forma voy a ordenar
+    -el rango de recetas que tengo, este rango es un poquito empírico estoy asumiendo
+    que son "100,000" hice un par de pruebas y si aumenta, tengo muchas ocurrencias que no
+    recibo nada, si disminuye sigue funcionando, pero se me hizo que era un buen número de
+    nuevo, llegue a, el de forma ensayo y error entonces, no necesariamente es el mejor,
+    pero es con el que vamos a trabajar,
+
+
+Con esto tenemos lista la estructura, todas las interfaces
+y puedo pasar a la implementación
+
+
+
+Un comentario, es posible que tantos archivos.
+sean molestos para algunas personas, en mi caso, yo prefiero trabajar así para saber
+a qué archivo dirigirme, sin embargo, como son interfaces, podrían colocarse todas dentro
+de un solo archivo que se le llame por ejemplo "RecipeMainContract" porque es el contrato
+que va a implementar y dentro implementamos todas estas interfaces, estas por lo menos
+una para la vista, una para el presentador, talvez hay un interactuador, talvez hay un
+repositorio, aunque pueden haber caso que no lo haya, entonces podríamos implementarlo
+así, mi forma de trabajar va continuar de esta manera, pero cada uno de ustedes lo puede
+implementar de la forma que se sienta más cómodo.

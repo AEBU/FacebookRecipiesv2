@@ -10,7 +10,6 @@ import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
-import com.facebook.appevents.AppEventsLogger;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
@@ -19,7 +18,7 @@ import java.util.Arrays;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import ec.edu.lexus.facebookrecipies.R;
-import ec.edu.lexus.facebookrecipies.RecipeMainActivity;
+import ec.edu.lexus.facebookrecipies.recipemain.ui.RecipeMainActivity;
 
 public class LoginActivity extends AppCompatActivity {
 
