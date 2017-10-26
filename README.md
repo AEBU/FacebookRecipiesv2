@@ -658,3 +658,93 @@ una para la vista, una para el presentador, talvez hay un interactuador, talvez 
 repositorio, aunque pueden haber caso que no lo haya, entonces podríamos implementarlo
 así, mi forma de trabajar va continuar de esta manera, pero cada uno de ustedes lo puede
 implementar de la forma que se sienta más cómodo.
+
+
+Commit9: RecipeMainActivity_functions
+
+En actividad RecipeMainActivity
+
+    -Inyección de Butterknife
+        -ImageView
+        -imageButtons
+        -progressBar
+        -etc
+
+    -Definimos un presentador que se inyectará y lo usaremos para nuestra lógica
+
+    -Editamso onCreate
+        -setupInjection//que definiremos como se inyecatará luego, y con esto nos aseguraremos que el presentador fue inicializado
+        -getNextRecipe()//para traernos una receta
+        -onDestroy
+            presenter.onDestroy
+
+
+    -Implementamos RecipeMainView
+        -ShowUIElements//mostramos botones
+            imgKeep.setVisibility(View.VISIBLE);
+            imgDismiss.setVisibility(View.VISIBLE);
+        -HideUIElements
+            imgKeep.setVisibility(View.GONE);
+            imgDismiss.setVisibility(View.GONE);
+        -ShowProgress
+            progressBar.setVisibility(View.VISIBLE);
+        -HideProgress
+            progressBar.setVisibility(View.GONE);
+
+        -saveAnimation
+        -dismissAnimation
+
+
+    -//necesitamos manejar los clicks por lo que agregamos
+        "public void onKeep" y este método me va a servir cuando tenga un "onClick"
+        llamamos al presentador y hacemos que se valide que existe algo que guardar y para eso necesito un objeto, con
+        lo que voy a conservar aquí que quiero guardar, entonces, le vamos a llamar "CurrentRecipe" definido en las variables locales
+
+            private Recipe currentRecipe;
+
+        Voy a verificar que si ese elemento es diferente de "null" entonces que si lo
+        guarde "Presentar.saveRecipe(currentRecipe)"
+
+            @OnClick(R.id.imgKeep)
+            public void onKeep() {
+                if (currentRecipe != null) {
+                    presenter.saveRecipe(currentRecipe);
+                }
+            }
+
+
+        Luego voy a hacer uno similar para "dismiss"
+
+            @OnClick(R.id.imgDismiss)
+            public void onDismiss() {
+                presenter.dismissRecipe();
+            }
+
+
+        -"string.xml" ahora aquí dos mensajes, para cuando él la receta fue guardada exitosamente
+        y cuando fue imposible obtener la información del "API" regreso a mi "recipeMainActivity"
+        aquí vamos hacer un "SnackBar.make(LayoutContainer. R.String.recipemain_notice_saved, SnackBar.LENGTH_SHORT).show" y para "RecipeError"
+        voy a hacer algo similar, solo que aquí si tengo un formato, si recordamos el "String.xml"
+        tiene un porcentaje "S recipeError" entonces vamos hacer un "string msgError = String.format(getString(R.string.recipemain_error), error)" y esto es lo que le envío al "snackBar" cuando hay
+        un error,
+
+            <string name="recipemain.error">Imposible obtener información %s</string>
+            <string name="recipemain.notice.saved">Guardado exitosamente</string>
+
+        por ultimo "setRecipe" entonces lo que voy a hacer es modificar el valor de
+        "CurrentRecipe" este método lo llama el presentador, entonces aquí lo estoy colocando y voy a
+        necesitar cargar la imagen, para eso necesito un "imageLoader" entonces vamos a definir
+        aquí también un "private imageLoader ImageLoader" listo, configuramos un poco aquí, y sobre
+        este "ImageLoader" voy a realizar la carga al tener el "recipe" entonces le hacemos "load"
+        el "ImageView" se llama "recipe" y lo que le envío es "recipe.getImageURL" antes de
+        hacer esta llamada debería haber configurado un "louder" tenga un "listener" para cuando
+        termino y en ese momento muestre todo lo necesario, todos los elementos de "ui" entonces por el
+        momento vamos a dejarlo aquí y tengo lista la parte inicial de mi actividad y la vista.
+
+                @Override
+                public void setRecipe(Recipe recipe) {
+                    this.currentRecipe = recipe;
+                    imageLoader.load(imgRecipe, recipe.getImageURL());
+                }
+
+
