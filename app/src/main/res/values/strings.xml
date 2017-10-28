@@ -5,8 +5,9 @@
 
     <string name="recipemain.error">Imposible obtener información %s</string>
     <string name="recipemain.notice.saved">Guardado exitosamente</string>
+
     <string name="recipemain.menu.action.list">Recetas guardadas</string>
     <string name="recipelist.menu.action.main">Elegir recetas</string>
 
-    <string name="menu.action.logout">Cerrar sesión</string>
+    <string name="global.menu.action.logout">Cerrar sesión</string>
 </resources>

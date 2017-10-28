@@ -748,3 +748,149 @@ En actividad RecipeMainActivity
                 }
 
 
+Commit10  :Main_Activity_Menu_Image_Loader
+
+
+Trabajamos
+    -menú para cambiar de pantalla
+    -cerrar sesión
+
+
+Creamos
+    -menu
+        "MenuResourceFile" le llamamos "menu_recipes_main.xml"
+
+    -strings
+        Una para indicar cuál es el nombre de la acción que me va a llevar a la pantalla de recetas guardadas, y empieza
+        con "recipeMain" porque pertenece a esta pantalla
+
+        Otra es global porque va estar disponible en las dos pantallas  "global.menu_recipes_main"
+
+Para el menú
+Uno de ellos tiene un icono que es la estrella, la estrella me va permitir mostrarlo, como
+una acción, entonces le indico que siempre tiene que ir como una acción es decir fuera de los 3 puntitos "app:showAsAction="always""
+Y el "Logout" no es una acción nunca, por lo tanto va estar valor el menu, bajo los tres puntitos, eso es lo que marca
+la diferencia de cómo se coloca este menu, ahora vamos a encerrar estos archivos "app:showAsAction="never""
+
+
+
+        <menu xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            tools:context=".recipemain.ui.RecipeMainActivity">
+            <item
+                android:id="@+id/action_list"
+                android:title="@string/recipemain.menu.action.list"
+                android:icon="@android:drawable/btn_star_big_off"
+                app:showAsAction="always" />
+
+            <item
+                android:id="@+id/action_logout"
+                android:title="@string/global.menu.action.logout"
+                app:showAsAction="never" />
+        </menu>
+
+En recipeMainActivity
+
+        Sobrecargar los métodos de menu
+        "onCreateOptionsMenu"
+            Inflamos los respectivos menús
+        "onOptionsItemMenu"
+            Aquí inflamos el menu y aquí vamos a validar,
+            tenemos dos posibles opciones, entonces vamos a decir "id=item.getItemId"
+            entonces si este identificador es "ActionList" voy a moverme hacia otra actividad
+            entonces aquí vamos a agregar un método "navigateToListScreen"
+            si es "ActionLogout" voy a cerrar sesión, el método "logout"
+
+             if (id == R.id.action_list) {
+                        navigateToListScreen();
+                        return true;
+                    } else if (id == R.id.action_logout) {
+                        logout();
+                        return true;
+            }
+
+
+           En "navegatorToListScreen" que va ser,no necesitamso que ser borren las banderas por lo que usamos directamente la actividad
+           entonces hacemos un "new Intent(this, recipeListActivity.class)"
+
+
+           Creamos un RecipeListActivity
+
+
+           Creo el método "logout",como este método está en "RecipeMain" y en "RecipeList" vamos a usar el "ApplicationClass" tengo un "FacebookRecipes app" igual a voy
+            a necesitar un "type Casting" aquí y escribo "getApplication" y sobre la aplicación voy
+            a utilizar el método "logout" sin ningún parámetro,
+
+            En RecipeMainActivity
+                private void logout() {
+                    FacebookRecipesApp app=(FacebookRecipesApp)getApplication();
+                    app.logout();
+                }
+            En FacebookRecipesApp
+
+                public void logout(){
+                    LoginManager.getInstance().logOut();
+                    Intent intent = new Intent(this, LoginActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                            | Intent.FLAG_ACTIVITY_NEW_TASK
+                            | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                }
+
+            Cerramos sesión con un "LoginManager" ".getInstance.logout" y la siguiente va ser crear el "intent" un
+            "intent" nuevo a partir de "LoginActivity.class"y ponemos las banderas necesarias para limpiar la
+            historia
+
+
+Configuración del ImageLoader
+RecipeMainActivity
+
+
+Vamos a crear un método aquí, después de "SetupInjection" llamado "setupImageLoader"
+la idea aquí es que vamos a tomar el "imageLoader" y le vamos hacer un "setOnFinishedImageLoadingListener"
+y aquí instanciamos el objeto, de hecho vamos a hacerlo antes, para que no quede de esta
+forma "RequestListener GlideRequestListener = new RequestListener" implementamos los métodos
+y le vamos a enviar este valor al "imageLoader", recordemos por el momento el "imageLoader"
+no existe entonces esto nos podría dar "null" por lo que comentamos esta mientras lo
+inyectamos
+ tengo dos métodos,
+        "onException"
+            Me va servir para mostrar un mensaje de error
+        "OnResourceReady"
+            Me va servir para ocultar la pantalla de progreso y mostrar los elementos de "ui" tengo dos formas de hacerlas
+
+
+Podría directamente aquí, colocar en "onException" un "SnackBar.make" etcétera
+y "onResourceReady" llamar a "hideProgress" y "ShowUIElements"
+
+O cederle esto al presentador, es de nuevo, una decisión que puede tomar cada uno, en mi caso lo que voy a hacer, es
+dirigirme al presentador y modificarlo, entonces vamos a abrir el "RecipeMainPresenter" y vamos
+a agregar aquí un "void imageError(String error)" que va recibir el error, y un "void ImageReady"
+
+entonces voy a disponer de esos métodos, regreso a la actividad principal, y entonces en "onException" lo que voy hacer
+es mandar a llamar a "Presenter.ImageError" y le envío "e.getLocalizedMessage" y "onResourceReady"
+me va permitir llamar a "presenter.ImageReady"
+
+TODA LA LÓGICA, va estar dentro del presentador
+
+
+    private void setupImageLoading() {
+        RequestListener glideRequestListener = new RequestListener() {
+            @Override
+            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
+                presenter.imageError(e.getLocalizedMessage());
+                return false;
+            }
+
+            @Override
+            public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
+                presenter.imageReady();
+                return false;
+            }
+        };
+        //imageLoader.setOnFinishedImageLoadingListener(glideRequestListener);
+
+    }
+
+
