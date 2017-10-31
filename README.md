@@ -1005,3 +1005,44 @@ Manejamos dos constantes
     "public final static int NEXT_EVENT= 0"
     "public final static int SAVE_EVENT = 1"
     y por ultimo "getter" y "setter" para todo lo que tenemos
+
+
+Commit12: InteractorsImpl
+Comenzmos con la implementación de los interactuadores
+
+GetNextRecipeInteractorImpl implementa GetNextRecipeInteractor
+//Creamos nuestro Repositorio y lo recibimos en el constructor,
+en el método sobrecargado hago un número "Random" "new Random.nextInt" a partir del rango que tengo
+disponible en el repositorio, entonces le voy a dar "RecipeMainRepository.RECIPE_RANGE"
+y luego "repository.setRecipePage" con este número que genere y llamo al getNextRecipe
+//la idea es generar y obtener la siguiente receta
+
+    RecipeMainRepository repository;
+
+    public GetNextRecipeInteractorImpl(RecipeMainRepository repository) {
+        this.repository = repository;
+    }
+
+    @Override
+    public void execute() {
+        int recipePage=new Random().nextInt(RecipeMainRepository.RECIPE_RANGE);
+        repository.setRecipePage(recipePage);
+        repository.getNextRecipe();
+    }
+
+SaveRecipeInteractorImpl implementa SaveRecipeInteractor
+Tenemos un Repositorio, cereamos nuestro constructor y luego procedemos a llamar al saveRecipe del repository dejando todo listo con neustros interactuadores
+
+    RecipeMainRepository repository;
+
+    public SaveRecipeInteractorImpl(RecipeMainRepository repository) {
+        this.repository = repository;
+    }
+
+    @Override
+    public void execute(Recipe recipe) {
+        repository.saveRecipe(recipe);
+    }
+
+
+
