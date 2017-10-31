@@ -894,3 +894,114 @@ TODA LA LÓGICA, va estar dentro del presentador
     }
 
 
+Commit11: PresenteryEvent
+
+Vamos a crear la implementación de RecipeMainPresenter
+
+ -recipemain
+    RecipeMainPresenter
+        'RecipeMainPresenterImpl'
+
+Al crear RecipeMainPresenterImpl tenemos los diferentes atributso que necesitamos como son:
+
+    EventBus eventBus;      //para subscripciones
+    RecipeMainView view;    //para controlar los métodos de la vista
+    SaveRecipeInteractor saveInteractor; //para guardar una receta de acuerdo a nuestro interactuador
+    GetNextRecipeInteractor getNextInteractor; //para traernos la siguiente receta
+
+
+Implemetamos todos los métodos que usamos
+
+    onCreate
+        //me permite registrarme en EventBus
+        eventBus.register(this);
+    onDestroy
+        //me permite deregistrarme y volver la vista nula
+        eventBus.unregister();
+        view=null;
+    en dismissRecipe
+        //verificamos si tengo una vista disponible y luego mando a llamar la animación de "dismiss" y luego va obtener el siguiente "recipe" llamando un método que voy a implementar a continuación en "getNextRecipe"
+        if (view!=null){
+         view.dismissAnimation();
+        }
+        getNextRecipe();
+
+    en getNextRecipe
+        //Verificamos si existe la vista llamamos a hideUIElements y a "ShowProgress"luego ejecutamos al interactuador
+        //vemos que tenemos que ocultar los elementos de UI, en este caso los ImmageButtons
+        if (view!=null){
+            view.hideUIElements();
+            view.showProgress();
+        }
+        getNextRecipeInteractor.execute();
+
+    en saveRecipe
+        //Validamos la vista existe, y llamamos a saveAnimation de la vista, ocultamos los elementos y mostrarmos el progressBar,  para luego llamar al interactuador que guarda un interactuador
+        if (view!=null){
+        view.saveAnimation();
+            view.hideUIElements();
+            view.showProgress();
+        }
+        saveRecipeInteractor.execute(recipe);
+
+
+    en onEventMainThread
+        //tenemos que estar suscritos con @Subscribe
+
+    en getView
+        this.view, devolvemos la vista que tenemos
+
+    en imageError
+        //Valido si tengo una vista disponible, y mando un mensaje a la vista, permitiéndome mostrar el error que tengo
+        //veo si tengo un error al traer la imagen
+        if (view!=null){
+            view.onGetRecipeError(error);
+        }
+    en imageReady
+        //Voy a ocultar, (contrario a lo anterior), es decir escondo el progressBar y luego muestro los elementos
+        if (view!=null){
+                    view.hideProgress();
+                    view.showUIElements();
+        }
+
+    en onEventMainThread
+        //Verificamos la vista disponible, luego voy a ir atraer un error a partir del evento con "getError" si este error es diferente de "null" tengo que notificarlo a la vista
+         //escondo el progressBar y notifico a la vista de mi error
+         // si es diferente de null, tengo que verificar el tipo de evento, luego si es RecipesMainEvent.NEXT_EVENT hago una cosa si no hago otra cosa con SAVE_EVENT
+        //aquí llamo a "view.setRecipe" y le envío el "recipe" que viene en el evento y si lo que
+        //tengo un "SAVE_EVENT" entonces le voy a avisar a la vista que la receta fue guardada
+        //llamando al interactuador, para obtener la siguiente "receta" "getNextInteractor.execute"
+        listo, entonces de forma automática, cuando una receta es salvada, le aviso y de una vez,
+        inicio la ejecución de obtener la siguiente receta
+
+        if (view!=null){
+                    String error=event.getError();
+                    if (error!=null){
+                        view.hideProgress();
+                        view.onGetRecipeError(error);
+                    }else {
+                        if (event.getType()==RecipeMainEvent.NEXT_EVENT){
+                            view.setRecipe(event.getRecipe());
+                        }else if (event.getType()==RecipeMainEvent.SAVE_EVENT) {
+                            view.onRecipeSaved();
+                            getNextRecipeInteractor.execute();
+                        }
+                    }
+        }
+
+
+
+
+
+En clase "RecipeMainEvent"
+    //declaro mis campos del tipo de eventos que vamos a tener, ya que en este caso tenemos 2
+
+        1.-cuando estoy guardando
+        2.-cuando estoy teniendo la siguiente receta disponible
+    El posible error si se generó alguno
+    Si recibo un "recipe" porque viene una receta nueva,
+
+Manejamos dos constantes
+    "public final static int NEXT_EVENT= 0"
+    "public final static int SAVE_EVENT = 1"
+    y por ultimo "getter" y "setter" para todo lo que tenemos
