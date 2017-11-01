@@ -1045,4 +1045,149 @@ Tenemos un Repositorio, cereamos nuestro constructor y luego procedemos a llamar
     }
 
 
+Commit13 :RepositoryImpl
+
+Implementamos el repositorio con esto ya tenemos la funcionalidad de la descarga que hemos generado
+
+RecipeMainRepositoryImpl
+    //defino un recipePage(que es a pagina de la receta)
+    -int recipePage
+    -EventBus eventBus //para las subscripciones
+    -RecipeService //para conectar con el API de Retrofit
+
+    Recibimos todo en el constructor, e implementamos los métodos de RecipeMainRepository
+
+
+    //tenemos que escribir los métodos, para postear los eventos y su respectiva publicación
+    //podemos crear un método genérico para postear el evento,con el tipo de evento, el error,y la receta
+        //creamos el evento "RecipeMainEvent"
+        //seteamos los datos a este evento con los parámetros recibidos
+        //y posteamos el evento
+
+    en post(String error,int type,Recipe recipe)
+        RecipeMainEvent event = new RecipeMainEvent();
+        event.setError=error;
+        event.serType=type;
+        event.setRecipe=recipe;
+        eventBus.post(event);
+    //para crear solo postear la receta opsteamos de la siguiente manera, mandando el evento y la receta, mandando como error el null
+    en post(Recipe recipe){
+        post(null,RecipeMainEvent.NEXT_EVENT,recipe)
+    }
+    //para postear que tuve un error podría reutilizar el método pero en el error mandarle Error recibido y como receta null, y como Evento cualquiera de los dos ya que solo necesitamos
+     //el error en este caso tenemos NEXT_EVENT
+    post(String error){
+        post(error,RecipeMainEvent.NEXT_EVENT,null);
+    }
+
+
+    //por ultimo tenemos saveEvent  que no recibe ningun parametro, mandando como null en los parametros exepto en el tipo ya que usamos SAVE_EVENT
+
+    post(){
+        post(null,RecipeMainEvent.SAVE_EVENT,null);
+    }
+
+    En "setRecipePage" es un método sencillo y lo que hacemos es tomar el recipePage igualarlo a la variable de clase
+    //con esto ya tenemos lista la asignación
+    @Override
+    public void setRecipePage(int recipePage) {
+        this.recipePage = recipePage;
+    }
+
+    En "SaveRecipe" que igual es bastante sencillo, aquí nos vamos a apoyar bastante en el "ORM" y
+    todo lo que necesito hacer es ".save" listo quedo guardado, entonces publicamos un evento
+    de que ya se guardó.
+
+    @Override
+    public void saveRecipe(Recipe recipe) {
+        recipe.save();
+        post();
+    }
+
+    //regresamos a la lógica un poco mas pesada que es en getNextRecipe
+
+    entonces vamos a colocar aquí, la llamada, para hacer la petición a "Retrofit" necesitamos
+    un objeto "Call" le vamos a llamar "call" y lo vamos a obtener a partir del servicio
+    entonces hacemos "service." y aquí esta nuestro método definido "service"
+    y aquí van a ir los parámetros que yo definí:
+        entonces en "BuildConfig" va estar el "FOOD_API_KEY"
+        luego tengo que enviar el "sort" que eso está en "RecipeMainRepository" se llama "RECENT_SORT"
+        luego tengo que enviarle el conteo "COUNT"
+        luego tengo que enviarle la página que va ser el "RecipePage"
+Tengo completa la llamada, a continuación tengo que hacer
+un "enquere" de una respuesta, entonces vamos a definir aquí un "callback" "RecipeSearchResponse"
+eso es para una llamada síncrona, eso es importante, vamos a importar el "callBack"
+de "Retrofit" y a este le vamos a llamar "CallBack" nada más, y vamos a instanciarlo, tiene ciertos
+métodos, "onResponse" "onFailure" y lo que vamos a hacer al final, es "call.enqueue"
+esto es importante porque "Retrofit" tiene dos tipos de ejecución, síncrona y asíncrona,
+en "Retrofit2" la ejecución síncrona, es decir en el mismo "Thred" es con el método
+"execute" pero la ejecución asíncrona es decir con new Thread con "enqueue" es decir, esto va generar
+otro "Thred" y vamos a colocar aquí, el "callback" que definimos, luego tenemos dos casos "onResponse"
+
+"onFailure" si fallo, entonces vamos a tener un error, aquí vamos a decir "post" y queremos
+enviar un error ".getLocalizerMessage"
+
+"onResponse" vamos a hacer varias validaciones,
+la primera es "response.IsSuccess" es decir, si tuvimos éxito, vamos a hacer algo, de
+lo contrario, entonces hacemos un "post" del error y este error va estar en la respuestas
+de "response.message" y vamos a estar reportando que ocurrió un error, si vamos a ver el error,
+perdón el método "post" estamos asumiendo que es un "NextEvent" no es este "NextEvent"
+y el error lo colocamos en el evento, entonces de la respuesta vamos a obtener que fue lo
+que salio mal, ahora si la respuesta es exitosa, vamos a declarar un "RecipeSearchResponse"
+a partir de la respuesta y el cuerpo que recibimos, entonces lo que va ser "Retrofit" usando "Gson"
+es parciarlo y devolvernos un resultado, entonces voy a validar si esta respuesta con el método
+"getCount" me devuelve cero, quiere decir que como le mande un número "random" el "API"
+no está encontrándolo, ósea la petición se hizo de forma exitosa, me dio un resultado,
+pero no encontró una receta correspondiente al "id" que el envío,
+ entonces lo que hacemos en este caso, es llamar a nuestro mismo método
+"setRecipePage" con un "new Random().nextInt()" y le envío aquí, el "RECIPE_RANGE", para
+generar un nuevo número aleatorio y vuelvo a llamar al mismo método, de tal forma que
+cuando haya una petición que no devolvió nada, vuelva a llamar al mismo método, esperando
+que la siguiente si devuelva, recuerden esto va depender mucho del rango, pero como no
+conozco el "API", en realidad no está, dándome un acceso a un receta aleatoria, estoy haciendo
+un "WorkOfRam" para que el usuario no tenga una mala experiencia, y el "API" responda
+a algo, ok, entonces si el resultado es igual a cero, hacemos esto, de lo contrario, entonces,
+si tengo algo de respuesta, voy a construir un "recipe" a partir del "recipeSearch" con
+"getFirstRecipe" por alguna razón, puede ser que sea "null" entonces sí, es diferente
+de "null" voy a validar eso, si es diferente de "null" entonces vamos a publicar ese "recipe"
+a través del evento y si es "null" por alguna razón, porque algo salio mal, ósea tengo
+el resultado pero es nulo, entonces vamos a reportar un error, indicando también el
+"response.message" con esto tengo listo el repositorio, estoy haciendo la petición del
+"API" y mi siguiente paso, es realizar la inyección de depen dencias, para poder probar,
+todo el "Stack" de mi arquitectura.
+
+    @Override
+    public void getNextRecipe() {
+        Call<RecipeSearchResponse> call = recipeService.search(BuildConfig.FOOD_API_KEY, RECENT_SORT, COUNT, recipePage);
+        Callback<RecipeSearchResponse> callback=new Callback<RecipeSearchResponse>() {
+            @Override
+            public void onResponse(Call<RecipeSearchResponse> call, Response<RecipeSearchResponse> response) {
+                if (response.isSuccessful()) {
+                    RecipeSearchResponse recipeSearchResponse = response.body();
+                    if (recipeSearchResponse.getCount() == 0){
+                        setRecipePage(new Random().nextInt(RECIPE_RANGE));
+                        getNextRecipe();
+                    } else {
+                        Recipe recipe = recipeSearchResponse.getFirstRecipe();
+                        if (recipe != null) {
+                            post(recipe);
+                        } else {
+                            post(response.message());
+                        }
+                    }
+                } else {
+                    post(response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<RecipeSearchResponse> call, Throwable t) {
+                post(t.getLocalizedMessage());
+            }
+        };
+        call.enqueue(callback);
+        // o podemos hacr call.enqueque(new Callback<SearchResponse> ...
+    }
+
+
 
