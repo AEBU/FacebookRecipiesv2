@@ -1378,3 +1378,214 @@ Issue
     Unable to start activity ComponentInfo{ec.edu.lexus.facebookrecipies/ec.edu.lexus.facebookrecipies.recipemain.ui.RecipeMainActivity}: java.lang.ClassCastException: android.app.Application cannot be cast
     y es porque no esta definida en el manifiesto nuestra clase app
 
+
+Commit15 :Animation_Swipe
+
+Comenzamos con las animaciones que veremos en nuestro proyecto por lo que usamos lo siguiente
+
+recipemain
+    -ui
+        -SwipeGestureDetector(Class)
+        -SwipeGestureListener(Interface)
+
+
+    En la interface
+         "onKeep" y "onDismiss" listo,
+            void onKeep();
+            void onDismiss();
+
+
+    En la clase definimos un par de constantes, para el manejo de "swipe"
+    cuál es el "SWIPE_THRESHOLD" que queremos superar y que velocidad, vamos a tener también como un límite, como un "THRESHOLD" y vamos a usar una interfaz, llamada: "SwipeGestureListener"
+    para saber qué hacer en el momento que se dio el "swipe" en alguna dirección
+
+
+    private SwipeGestureListener listener;
+    private static final int SWIPE_THRESHOLD = 100;
+    private static final int SWIPE_VELOCITY_THRESHOLD = 100;
+
+
+    Lo recibimos dentro del constructor a la interface  y vamos a
+    sobrecargar un par de métodos nos interesa sobrecargar
+            "onDown"
+                y aquí devolveremos true" si ocurrió el evento
+            "onFling"
+                que aquí recibe par de "MotionEvent" recordemos que "swipe" va requerir de estos
+````````````````dos eventos, cuando hay un "down" un "move" y luego un "Up" pero tienen que tener un "match"
+                entonces aquí en "onFling" es donde vamos a hacer la implementación
+
+
+                Aquí en "onFling" vamos a hacer un "float" que refleje la diferencia entre los dos eventos
+                "e2.getY() - e1.getY()" lo mismo para la "X" en este caso lo que cambia es el método que
+                vamos a llamar
+                condicionamos, si el valor absoluto, recuerden que podemos
+                tener valores positivos y negativos, de la diferencia de X, es mayor que el valor absoluto,
+                de la diferencia de Y, entonces verificamos que si el valor absoluto, de la diferencia
+                de X es mayor que el "THRESHOLD" y además el valor absoluto de la variable de velocidad
+                en X es mayor que el "SWIPE_VELOCITY_THRESHOLD" que tenemos para la velocidad, si esto se cumple vamos a revisar, si la diferencia de X es mayor que 0, entonces
+                esto significa, que vamos a llamar al método "onKeep" porque es un "swipe" hacia la derecha,
+
+                de lo contrario vamos a llamar al método "onDismiss" porque es un "swipe" hacia la
+                izquierda, de hecho podríamos hacer,
+
+
+    @Override
+    public boolean onDown(MotionEvent e) {
+        return true;
+    }
+
+    @Override
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        boolean result = false;
+        try {
+            float diffY = e2.getY() - e1.getY();
+            float diffX = e2.getX() - e1.getX();
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                    if (diffX > 0) {//esto es un swipe hacia la derecha
+                        listener.onKeep();
+                    } else {//y sino es un swipe a la izquierda
+                        listener.onDismiss();
+                    }
+                }
+            }
+            result = true;
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+        return result;
+    }
+
+
+Procedemos al "MainActivity" vamos a abrir el
+"RecipeMainActivity" y aquí vamos a hacer un par de cosas vamos a agregar
+
+
+        "setupGestureDetection"
+                    y en este método, vamos a poner lo necesario, para la detección, que ¿necesitamos?, necesitamos
+                    crear un "GestureDetector" con el nombre y este "GestureDetector" va recibir, ciertos
+                    parámetros, enviamos "this, new SwipeGestureDetector" que veamos "this on Listener" le ponemos "this"
+                    nos da un error, hacemos que, nuestra actividad implemente este "listener" por lo tanto voy
+                    a necesitar métodos, "onKeep" y "onDismiss" estos métodos ya los tenia, lo único que
+                    necesito, es que además, sobrecarguen a los métodos de la interfaz, entonces le agrego
+                    la anotación "override" a los metodos de la acitvidad como son onKeep y onDismiss
+
+
+                private void setupGestureDetection() {
+                    final GestureDetector gestureDetector = new GestureDetector(this, new SwipeGestureDetector(this));
+                    View.OnTouchListener gestureListener = new View.OnTouchListener() {
+                        public boolean onTouch(View v, MotionEvent event) {
+                            return gestureDetector.onTouchEvent(event);
+                        }
+                    };
+                    imgRecipe.setOnTouchListener(gestureListener);
+                }
+                 "GestureDetector"
+
+                    Hacemos un "view.OnTouchListener gestureListener" con el nombre "new" etcétera, tenemos un
+                    método "onTouch" aquí, vamos a en vez, de "return" falso vamos a devolver "gestureDetector.OnTouchEvent"
+                    y le enviamos el mismo evento "motionEvent" y luego esto lo vamos a asignar a la imagen,
+                    "ImageRecipe.setOnTouchListener" y le enviamos este, veamos, "GestureListener" le voy a hacer
+                    "GestureOnTouchListener" necesitamos también que
+                    la imagen se anime, y que la imagen, se limpie a la hora de que se está cargando la otra,
+
+        "clearImage"
+                para limpiarla y esto va ir asociada con la
+                animación, hacemos "imageRecipe.setImageResource" le vamos a enviar un recurso cero, para que
+                no muestre nada.
+
+                private void clearImage(){
+                    imgRecipe.setImageResource(0);
+                }
+
+        "saveAnimation"
+                Declaramos un "Animation anim = animationUtils.loadanimation(getApplicationContext)" necesito un contexto y una animación, este
+                es un archivo "XML" le ponemos "R.anim.save_animation" este todavía no existe, entonces vamos a
+                crear este "ResourceFile" le llamamos "save_animation" y aquí lo que vamos a tener es una animación
+                con ciertas características para que se vaya hacia la derecha ósea es desde el centro,
+                hacia la derecha, de la misma forma
+
+                @Override
+                public void saveAnimation() {
+                    Animation anim = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.anim_save);
+                    anim.setAnimationListener(new Animation.AnimationListener() {
+
+                        @Override
+                        public void onAnimationStart(Animation animation) { }
+
+                        @Override
+                        public void onAnimationRepeat(Animation animation) { }
+
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            clearImage();
+                        }
+                    });
+                    imgRecipe.startAnimation(anim);
+                }
+        "dismissAnimation"
+
+                Hacemos lo mismo para el "dimiss" pero en este caso le llamamos "dismissAnimation" creamos este archivo y
+                la diferencia con la otra animación es que esta tiene a menos cien por ciento va hacia
+                el otro lado, la duración es de "350 milisegundos" "700 milisegundos", luego de tener la animación, vamos a tener un, "ImageRecipe.StartAnimation"
+                y le envío mi objeto de animación, lo mismo en los dos casos, sin embargo me interesa
+                cuando termine la animación, la imagen se borre, para eso voy a usar un "animationListener"
+                vamos hacer un método privado, que me puede ayudar con esto "private animationListener getAnimationListener" y en este método vamos a hacer "return new AnimationListener" tiene
+                tres métodos "onAnimationStart" "onAnimationEnd" "onAnimationRepeat" nos interesa que cuando
+                termine, se limpie la imagen, entonces hacemos aquí un "clearImage" y a ambas animaciones
+                vamos a decir "Anim.setAnimationListener" y llamamos a este método en los dos casos.package
+
+                @Override
+                public void dismissAnimation() {
+                    Animation anim = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.anim_dismiss);
+                    anim.setAnimationListener(new Animation.AnimationListener() {
+
+                        @Override
+                        public void onAnimationStart(Animation animation) { }
+
+                        @Override
+                        public void onAnimationRepeat(Animation animation) { }
+
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            clearImage();
+                        }
+                    });
+                    imgRecipe.startAnimation(anim);
+                }
+
+Para las animaciones tenemos
+este es para dismiss
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shareInterpolator="false" >
+    <translate android:duration="350" android:fromXDelta="0%" android:toXDelta="-100%"/>
+    <alpha android:duration="700" android:fromAlpha="1.0" android:toAlpha="0.0" />
+</set>
+este es para save
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shareInterpolator="false" >
+    <translate android:duration="350" android:fromXDelta="0%" android:toXDelta="100%"/>
+    <alpha android:duration="700" android:fromAlpha="1.0" android:toAlpha="0.0" />
+</set>
+
+
+
+
+Para resumir la creacion de un gestureDetector
+
+SwipeGestureDetector
+
+Definimos el manejo del Swipe el SWIPE_THRESHOLD y el SWIPE_VELOCITY_THRESHOLD,
+    Sobrecargamos
+        onDown, si ocurrio el evento
+        onFling, toma los eventos
+            diferencia entre los dos eventos, para detectar los elementos
+
+SwipeGestureListener
+Definimos el listener para saber que hacer en el momento que se dio el listener en alguna dirección
+
+RecipeMainActivity
+En la actividad que lo implementa la interfaz que hemos definido, con esto nos aseguramos que se va a realizar lo que necesitmaos
+hacemos un gestor de detectores y le enviamos la actividad y la nueva clase que hicismo que exitenda de gesture detector
+
