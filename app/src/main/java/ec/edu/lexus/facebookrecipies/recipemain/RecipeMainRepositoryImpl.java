@@ -23,8 +23,7 @@ public class RecipeMainRepositoryImpl implements RecipeMainRepository{
     private EventBus eventBus;
     private RecipeService recipeService;
 
-    public RecipeMainRepositoryImpl(int recipePage, EventBus eventBus, RecipeService recipeService) {
-        this.recipePage = recipePage;
+    public RecipeMainRepositoryImpl( EventBus eventBus, RecipeService recipeService) {
         this.eventBus = eventBus;
         this.recipeService = recipeService;
     }
@@ -80,6 +79,7 @@ public class RecipeMainRepositoryImpl implements RecipeMainRepository{
         event.setError(error);
         event.setRecipe(recipe);
         event.setType(type);
+        eventBus.post(event);
     }
     private void post(String error){
         post(error,RecipeMainEvent.NEXT_EVENT,null);

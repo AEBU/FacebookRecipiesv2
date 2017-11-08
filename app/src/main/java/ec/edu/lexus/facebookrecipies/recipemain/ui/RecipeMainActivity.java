@@ -27,6 +27,7 @@ import ec.edu.lexus.facebookrecipies.RecipeListActivity;
 import ec.edu.lexus.facebookrecipies.entities.Recipe;
 import ec.edu.lexus.facebookrecipies.lib.base.ImageLoader;
 import ec.edu.lexus.facebookrecipies.recipemain.RecipeMainPresenter;
+import ec.edu.lexus.facebookrecipies.recipemain.di.RecipeMainComponent;
 
 public class RecipeMainActivity extends AppCompatActivity implements RecipeMainView {
 
@@ -45,7 +46,7 @@ public class RecipeMainActivity extends AppCompatActivity implements RecipeMainV
     private Recipe currentRecipe;
     private ImageLoader imageLoader;
     private RecipeMainPresenter presenter;
-    //private RecipeMainComponent component;
+    private RecipeMainComponent component;
 
 
     @Override
@@ -86,8 +87,7 @@ public class RecipeMainActivity extends AppCompatActivity implements RecipeMainV
         return super.onCreateOptionsMenu(menu);
     }
 
-    private void setupInjection() {
-    }
+
     private void setupImageLoading() {
         RequestListener glideRequestListener = new RequestListener() {
             @Override
@@ -102,7 +102,7 @@ public class RecipeMainActivity extends AppCompatActivity implements RecipeMainV
                 return false;
             }
         };
-        //imageLoader.setOnFinishedImageLoadingListener(glideRequestListener);
+        imageLoader.setOnFinishedImageLoadingListener(glideRequestListener);
 
     }
 
@@ -171,4 +171,19 @@ public class RecipeMainActivity extends AppCompatActivity implements RecipeMainV
     public void onDismiss() {
         presenter.dismissRecipe();
     }
+    private void setupInjection() {
+        FacebookRecipesApp app = (FacebookRecipesApp)getApplication();
+        //app.getRecipeMainComponent(this, this).inject(this);
+        component = app.getRecipeMainComponent(this, this);
+        imageLoader = getImageLoader();
+        presenter = getPresenter();
+    }
+    public ImageLoader getImageLoader() {
+        return component.getImageLoader();
+    }
+
+    public RecipeMainPresenter getPresenter() {
+        return component.getPresenter();
+    }
+
 }

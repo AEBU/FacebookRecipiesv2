@@ -1191,3 +1191,190 @@ todo el "Stack" de mi arquitectura.
 
 
 
+
+Commit14: MainInyection
+
+Seguimos con la parte de inyección de dependencias de nuestro recipemain, con lo que procedemos a crear las respectivas clases y sus implementaciones dentro de la aplicacion
+
+-di
+    -RecipeMainModule
+    -RecipeMainComponent
+
+
+Interfaz RecipeMainComponent
+    Va especificar el "API" con el que puedo hacer la inyección, entonces debemos agregar
+    aquí "Singleton" "@Component" tambien para indicar la anotación y le voy a especificar que módulos va utilizar
+    como son los de "RecipeMainModule" y  "LibsModule" con esto estoy
+    haciendo uso de lo que la librerías van a inyectar y aquí si recuerdan que habíamos hablado
+    que habían dos formas de inyectar
+    1: por el método "inject" indicando cual es el "target" en este caso el "target" seria "RecipeMainActivity" y este lo habemos usado en el caso anterior,
+    2: sin embargo ahora lo vamos a usar la otra forma, vamos a usar un método que le llamamos "get" para el objeto que quiero inyectar y devuelvo el objeto, recuerden aquí vamos
+    a tener dos inyecciones que van a irse en cascada el "ImageLoader" y el "MainPresenter", "ImageLoader" viene de las librerías y el "MainPresenter" va venir del "MainModule",
+    Tento que tener en mi Module los metodos que tengan el  método "provides" que devuelve exactamente este objeto, entonces nos vamos
+    a mover ahora al módulo y comenzamos trabajando
+
+    @Singleton
+    @Component(modules = {RecipeMainModule.class, LibsModule.class})
+    public interface RecipeMainComponent {
+        //void inject(RecipeMainActivity activity);
+        ImageLoader getImageLoader();
+        RecipeMainPresenter getPresenter();
+    }
+
+RecipeMainModule
+
+    en el módulo vamos a tener un "recipeMainView" que vamos a recibir en el constructor, luego el método que provee
+    la vista, es probablemente el más sencillo, "provides @Singleton" y devuelve un "recipeMainView"
+    provee la vista, y es el más sencillo, porque lo que vamos a hacer es devolver el mismo
+    objeto que recibimos en el constructor.
+    Luego vamos a tener un método similar pero para el presentador y usamos este mismo para el nombre del método, y entonces ¿qué necesita
+    el presentador? vamos a ver la clase, vamos a ver que tiene el "MainPresenterImplementation"
+    y tiene "eventBus" "View" e "Interactors" entonces le agregamos por aquí en el módulo
+    que reciba todo eso como parámetros en el método y devolvemos
+    un "new RecipeMainPresenterImplementation" que va usar exactamente esos parámetros,
+
+    @Module
+    public class RecipeMainModule {
+        RecipeMainView view;
+
+        public RecipeMainModule(RecipeMainView view) {
+                this.view = view;
+            }
+            @Provides @Singleton
+            RecipeMainView provideRecipeMainView() {
+                return this.view;
+            }
+
+            @Provides
+            @Singleton
+            RecipeMainPresenter provideRecipeMainPresenter(EventBus eventBus, RecipeMainView view, SaveRecipeInteractor save, GetNextRecipeInteractor getNext) {
+                return new RecipeMainPresenterImpl(eventBus, view, save, getNext);
+            }
+
+            @Provides @Singleton
+            SaveRecipeInteractor provideSaveRecipeInteractor(RecipeMainRepository repository) {
+                return new SaveRecipeInteractorImpl(repository);
+            }
+
+            @Provides @Singleton
+            GetNextRecipeInteractor provideGetNextRecipeInteractor(RecipeMainRepository repository) {
+                return new GetNextRecipeInteractorImpl(repository);
+            }
+
+            @Provides @Singleton
+            RecipeMainRepository provideRecipeMainRepository(EventBus eventBus, RecipeService service) {
+                return new RecipeMainRepositoryImpl(eventBus, service);
+            }
+
+            @Provides
+            @Singleton
+            RecipeService provideRecipeService() {
+                RecipeClient client = new RecipeClient();
+                return client.getRecipeService();
+    }
+
+    Luego después del presentador, vamos a necesitar proveer, los dos interactuadores, vamos a
+    necesitar proveer, un "saveRecipeInteractor" que va recibir, vamos a verlo, el "SaveRecipeInteractorImpl"
+    recibe un repositorio,etnocnes mandamos los respectivos atributos desde su constructor
+    el "SaveRecipeInteractor" tiene un método asociado con un nombre correspondiente y vamos
+    a devolver una instancia que va recibir el repositorio, de una forma similar vamos a
+    trabajar, un "getNextRecipeInteractor" corregimos en el objeto
+    que estamos devolviendo y están los interactuadores listos
+
+    El siguiente es el repositorio, me aparece un poco el método, copiamos lo que va devolver y que vamos a devolver una implementación
+    del mismo y se provee desde aquí, ahora que tendrá, este "RecipeMainRepositoreImpl" que
+    tendrá de parámetros, tiene un "RecipePage" lo estoy setiando, entonces lo vamos a borrar
+    del constructor para que no tenga que indicar nada de entrada y vamos a utilizar únicamente
+    estos dos parámetros, el "eventBus" y el servicio, entonces esos dos los colocamos
+    aquí, como parámetros del método que los provee, y vamos a utilizarlos también para
+    instanciar los objetos, "eventBus" viene de las librerías,
+    Me hace falta únicamente el servicio que tiene que ver con "Retrofit" esto podría estar también en
+    las librerías, sin embargo como no lo estoy utilizando en otro modulo que no sea en este,
+    lo voy a colocar aquí, es importante esa aclaración, porque lo estoy utilizando únicamente
+    en este "MainModule" recordemos mi aplicación ahorita tiene dos "Features" es una aplicación
+    muy pequeñita, por eso puedo hacer este tipo de cosas, vamos a hacer un "Provides Recipe Services"
+    y este no recibe ningún parámetro y lo que vamos a hacer es devolver un "New  RecipeClient.getRecipeService"
+
+Si quisiera hacer algún tipo de "Testing" enfocado
+    en esto de nuevo tengo que hacer el servicio de una forma diferente y lo vamos a platicar
+    cuando lleguemos al módulo de testing y además debería inyectar también aquí el cliente,
+    para poder reemplazarlos en algún momento
+
+
+
+
+
+En "ApplicationClass" es un "FacebookRecipeApp.Java" lo vamos a
+agregar aquí un método, que se llame, "public RecipeMainComponent getRecipeMainComponent"
+que va recibir un "RecipiMainActivity" y un "RecipiMainView" para poder construir los
+módulos necesarios, que vamos a devolver un "daggerRecipeMainComponent.builder"
+Tener cuidado con el "RequestManager" está usando un fragmento yo no quiero usar un fragmento, yo quiero usar una actividad,
+entonces agregamos lo necesario para usar esta actividad con Glide, agregamos aquí que va hacerse uso de esa actividad y regresamos
+nuevamente a mi "ApplicationClass"
+
+
+
+    public RecipeMainComponent getRecipeMainComponent(RecipeMainActivity activity, RecipeMainView view) {
+        return DaggerRecipeMainComponent
+                .builder()
+                .libsModule(new LibsModule(activity))
+                .recipeMainModule(new RecipeMainModule(view))
+                .build();
+    }
+
+
+Seguimos construyendo mi "builder" sin embargo previo a darle
+"Build" voy a necesitar un "LibsModule new LibsModule" y le indico aquí la actividad,
+y luego un "RecipeMainModule new RecipeMainModule" y le indico aquí la vista, con esto tengo
+mi "get MainComponent" entonces puedo moverme hacia la actividad, "RecipeMainActivity" listo,
+
+
+
+En RecipeMainActivity
+Agrego aquí la inyección, esta inyección entonces vamos a colocar "private RecipeMainComponent component" y este componente me va permitir a mi hacer la inyección entonces nos vamos
+a "SetupInjection" con su respectivo Cast y sobre "App" hago un "get RecipeMainComponent"
+de hecho esto podría, asignarlo, tengo que asignarlo, "component = app.getRecipeMainComponent"
+y le tengo que enviar los parámetros necesarios "this, this" una actividad y una vista, que
+son los dos al mismo objeto, luego sobre el componente, lo que haría es, "Inject this"
+en este caso no lo tengo porque no está el método, pero el problema con esto es que
+estoy encerrando esta inyección y necesitaría otra inyección cuando quiero hacer "testing"
+entonces un "worker ron´s" relativamente sencillo es poner "imageLoader = get ImageLoader"
+y "Presenter = getPresenter" y estos métodos los vamos a crear aquí abajito, y en vez
+de devolver el objeto que definimos, vamos a hacer "component.getImageLoader" vamos a
+crear el otro, donde está el "get Presenter" listo, le vamos a poner aquí "component.getPresenter"
+funciona igual y cuando quiera hacer el test de esta actividad voy a poder sobrecargar
+estos dos métodos y proveer "MOCS" buscamos la parte de "ImageLoading" vamos donde está
+aquí, y ahora ya no va ser nulo, entonces ya le podemos poner, que ejecute el presentador,
+cuando sea necesario y vamos a ver el resultado, vamos a ver el emulador y aquí tenemos nuestra
+receta, en este caso yo la quiero conservar, se guardó exitosamente, y esta no la quiero
+conservar, y entonces me va a traer otra, la imagen todavía se ve, no tengo el gesto
+de arrastrar, esto es lo que voy a implementar a continuación.
+
+    private RecipeMainComponent component;
+    //....
+    private void setupInjection() {
+        FacebookRecipesApp app = (FacebookRecipesApp)getApplication();
+        //app.getRecipeMainComponent(this, this).inject(this);
+        component = app.getRecipeMainComponent(this, this);
+        imageLoader = getImageLoader();
+        presenter = getPresenter();
+    }
+    public ImageLoader getImageLoader() {
+        return component.getImageLoader();
+    }
+
+    public RecipeMainPresenter getPresenter() {
+        return component.getPresenter();
+    }
+
+Issue
+    Tenemso un error de login de facebook y no se sabe que si ya nos logeamos y dimos permisos y configuramos en developers.facebook
+    por lo que eliminamos la app y creamos otra como la anterior y luego creamos las claves de esta
+    de acuero a este articulo
+https://stackoverflow.com/questions/20301025/facebook-key-hash-does-not-match-any-stored-key-hashes
+
+Issue
+    TEnemso este error
+    Unable to start activity ComponentInfo{ec.edu.lexus.facebookrecipies/ec.edu.lexus.facebookrecipies.recipemain.ui.RecipeMainActivity}: java.lang.ClassCastException: android.app.Application cannot be cast
+    y es porque no esta definida en el manifiesto nuestra clase app
+

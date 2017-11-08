@@ -13,13 +13,13 @@ import ec.edu.lexus.facebookrecipies.recipemain.ui.RecipeMainView;
  * Created by Alexis on 31/10/2017.
  */
 
-public class RecipeMainImpl implements RecipeMainPresenter {
+public class RecipeMainPresenterImpl implements RecipeMainPresenter {
     private EventBus eventBus;
     private RecipeMainView view;
     SaveRecipeInteractor saveRecipeInteractor;
     GetNextRecipeInteractor getNextRecipeInteractor;
 
-    public RecipeMainImpl(EventBus eventBus, RecipeMainView view, SaveRecipeInteractor saveRecipeInteractor, GetNextRecipeInteractor getNextRecipeInteractor) {
+    public RecipeMainPresenterImpl(EventBus eventBus, RecipeMainView view, SaveRecipeInteractor saveRecipeInteractor, GetNextRecipeInteractor getNextRecipeInteractor) {
         this.eventBus = eventBus;
         this.view = view;
         this.saveRecipeInteractor = saveRecipeInteractor;

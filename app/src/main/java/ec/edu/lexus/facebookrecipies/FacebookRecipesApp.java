@@ -6,7 +6,13 @@ import android.content.Intent;
 import com.facebook.login.LoginManager;
 import com.raizlabs.android.dbflow.config.FlowManager;
 
+import ec.edu.lexus.facebookrecipies.lib.di.LibsModule;
 import ec.edu.lexus.facebookrecipies.login.ui.LoginActivity;
+import ec.edu.lexus.facebookrecipies.recipemain.di.DaggerRecipeMainComponent;
+import ec.edu.lexus.facebookrecipies.recipemain.di.RecipeMainComponent;
+import ec.edu.lexus.facebookrecipies.recipemain.di.RecipeMainModule;
+import ec.edu.lexus.facebookrecipies.recipemain.ui.RecipeMainActivity;
+import ec.edu.lexus.facebookrecipies.recipemain.ui.RecipeMainView;
 
 /**
  * Created by Alexis on 21/10/2017.
@@ -40,4 +46,20 @@ public class FacebookRecipesApp extends Application {
                 | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
     }
+
+    public RecipeMainComponent getRecipeMainComponent(RecipeMainActivity activity, RecipeMainView view) {
+        return DaggerRecipeMainComponent
+                .builder()
+                .libsModule(new LibsModule(activity))
+                .recipeMainModule(new RecipeMainModule(view))
+                .build();
+    }
+
+//    public RecipeListComponent getRecipeListComponent(RecipeListActivity activity, RecipeListView view, OnItemClickListener onItemClickListener) {
+//        return DaggerRecipeListComponent
+//                .builder()
+//                .libsModule(new LibsModule(activity))
+//                .recipeListModule(new RecipeListModule(view, onItemClickListener))
+//                .build();
+//    }
 }
