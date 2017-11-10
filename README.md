@@ -1589,3 +1589,206 @@ RecipeMainActivity
 En la actividad que lo implementa la interfaz que hemos definido, con esto nos aseguramos que se va a realizar lo que necesitmaos
 hacemos un gestor de detectores y le enviamos la actividad y la nueva clase que hicismo que exitenda de gesture detector
 
+
+
+RecipeList
+Commit16: Layout_RecipeLayout_Save
+
+    Nuestro siguiente modulo o la siguiente característica que vamos a desarrollar, es el listado de
+    todo lo que hemos guardado, para este listado vamos a tener:
+
+                un "Toolbar", personalizado sin el de por defecto
+                    En la parte superior, con un "icono", que nos va llevar de regreso a la vista principal,
+                     aunque podríamos simplemente presionar el botón de "Back" el resultado es el mismo,
+
+                    Vamos a tener también la opción de "cerrar sesión"
+
+                Es un "RecyclerView"
+                        donde tenemos con vista de "grid" y tenemos dos columnas,
+
+                en cada columna, más bien en cada elemento, vamos a tener:
+                        la imagen
+                        el título
+                        un icono que representa si es favorito
+                        un icono para borrarlo
+                        si es favorito,  va estar marcado de amarillo y si no, no lo va estar,
+                            en el momento de hacer click va
+                            cambiar por ejemplo, si aquí hiciera click cambia a amarillo, y si aquí, hiciera click, cambia a no tener un relleno,
+
+                        el botón de eliminar permite borrar ese registro de la
+                            base de datos y todo esto, todos estos registros vienen de la base de datos, entonces aunque
+                            no haya seleccionado nada en la selección actual, están allí guardados, y también
+                            tengo para compartir y para enviar, en este caso, algo que quiero hacer explícito es
+                            que esos botones son de "Facebook" entonces dependen mucho del contenido y la implementación
+                            de "Facebook" en el caso de ambos tiene que tener el contenido, configurado para que estén
+                            habilitados, y en el caso de "send" tiene que tener instalado el usuario y la aplicación
+                            de "FacebookMessenger" para que este habilitado
+
+                Además en el "ToolBar" vamos a poder hacer un click para que me lleve a la parte superior
+                del listado, entonces puedo hacer un Scroll el "ToolBar" se oculta, pero cuando le hago
+                click me lleva hasta la parte superior de este listado
+
+
+
+    Empecemos con esto, voy a necesitar dos "Layout" uno para la actividad y uno para cada uno de los elementos de este
+    listado, nuestro "Layout" va funcionar con "ToolBar" entonces por el momento, necesitamos
+    trabajar tanto en el "manifest" como en "styles.xml"
+
+
+
+    En "styles" vamos a agregar los estilos
+    para que el tema no tenga "ActionBar"
+
+     <style name="AppTheme.NoActionBar">
+             <item name="windowActionBar">false</item>
+             <item name="windowNoTitle">true</item>
+     </style>
+     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+
+    En el "manifest" vamos a indicarle, que la actividad
+        de "RecipeListActivity" tiene un "android:theme" "appTheme.NoActionBar"
+
+        <activity android:name=".recipelist.ui.RecipeListActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+
+
+
+
+    Al "Layout" entonces abrimos el "RecipeList" y aquí vamos a colocar
+            Nuestro listado,
+            Vamos a colocar el "CordinatorLayout" y lo vamos a colocar un "toolBar"
+
+            Tenemos una "AppBarLayout" dentro de la "AppBarLayout" tenemos un "ToolBar" todo esto está dentro del "coordinatorLayout"
+
+             <android.support.design.widget.AppBarLayout
+                    android:id="@+id/appbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="@dimen/appbar_padding_top"
+                    android:theme="@style/AppTheme.AppBarOverlay">
+
+                    <android.support.v7.widget.Toolbar
+                        android:id="@+id/toolbar"
+                        android:layout_width="match_parent"
+                        android:layout_height="?attr/actionBarSize"
+                        android:background="?attr/colorPrimary"
+                        app:layout_scrollFlags="scroll|enterAlways"
+                        app:popupTheme="@style/AppTheme.PopupOverlay">
+
+                </android.support.v7.widget.Toolbar>
+
+            Y además hay un "RecyclerView" que va tener
+            interacción al hacer "Scroll" con los demás componentes
+
+                    <android.support.v7.widget.RecyclerView
+                        android:scrollbars="vertical"
+                        android:id="@+id/recyclerView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+
+
+                </android.support.design.widget.CoordinatorLayout>
+
+
+
+
+    Tenemos nuestro "ToolBar" recordemos que no tiene "ActionBar" y ahora
+    podemos implementar, el "Layout" de cada uno de los elementos, a este le vamos a llamar,"element_stored_recipes.xml"
+    dentro de el mismo, tenemos:
+
+            Un "ImageView" con cierto tamaño, vamos a crear este, ese tamaño de la imagen, le ponemos "150DP" un "TextView" para mostrare el título de la
+            receta.
+
+
+            Un "LinearLayout" que tiene dos "imageButtons" que tienen que tener cierto
+            "Padding" le vamos a poner "8dp"
+
+
+            Aparte de estos iconos, vamos a agregar los botones
+            de "Facebook" primero vamos a ver como luce en este momento, tenemos la imagen de un tamaño
+            fijo de "150x150" el título, la estrella para indicar que lo puedo volver favorito
+            o no, y el bote de basura para indicar que lo puedo eliminar
+
+
+    <ImageView
+        android:layout_width="@dimen/recipes_list_image_size"
+        android:layout_height="@dimen/recipes_list_image_size"
+        android:id="@+id/imgRecipe"
+        android:src="@mipmap/ic_launcher"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Medium Text"
+        android:layout_weight="1"
+        android:padding="@dimen/activity_horizontal_margin"
+        android:id="@+id/txtRecipeName"
+        android:layout_below="@+id/imgRecipe"
+        android:layout_centerHorizontal="true" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/txtRecipeName"
+        android:id="@+id/layoutButtons"
+        android:layout_centerHorizontal="true">
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/btn_star_big_off"
+            android:padding="@dimen/row_icons_padding"
+            android:background="@android:color/transparent"
+            android:id="@+id/imgFav" />
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_menu_delete"
+            android:padding="@dimen/row_icons_padding"
+            android:tint="@android:color/darker_gray"
+            android:background="@android:color/transparent"
+            android:id="@+id/imgDelete" />
+
+    </LinearLayout>
+
+
+            Agrego los elementos de "Facebook"
+                fuera del "LinearLayout" vamos a agregar un
+                    "sharedButton" que va tener "wrap_content" para ancho y alto y también vamos agregar
+                    "sendButton" que va tener "wrap_content" de ancho y alto, además le vamos a poner,
+
+
+
+    <com.facebook.share.widget.ShareButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/row_icons_padding"
+        android:id="@+id/fbShare"
+        android:layout_below="@+id/layoutButtons"
+        android:layout_centerHorizontal="true" />
+
+    <com.facebook.share.widget.SendButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/row_icons_padding"
+        android:id="@+id/fbSend"
+        android:layout_below="@+id/fbShare"
+        android:layout_centerHorizontal="true" />
+
+    Estamos dando un layout a nuestras interfaces hechas dentro
+    en este caso no va ser un, "padding" sino va ser un "margin" y lo vamos a poner al rededor,
+    completo del elemento, en los dos y vamos a agregar un identificador a cada uno, este
+    va ser "fbshared" y este otro va ser "fbsend" para indicar que es de el "messenger" para
+    enviarlo, luego esto va estar abajo, "below" de "share" "id/fbshared" y va estar centrado
+    horizontalmente "centerHorizontal="true" ", este primero va estar también centrado horizontalmente
+    y va estar abajo del "Layout" entonces este se llama "LayoutButtons", si es este identificador
+    que ya tenía, vamos a ver como luce, está aquí uno y aquí el otro, no los veo, necesito
+    para renderizarlo, poderlo visualizar directamente, en el dispositivo ejecutándose.
