@@ -1792,3 +1792,63 @@ Commit16: Layout_RecipeLayout_Save
     y va estar abajo del "Layout" entonces este se llama "LayoutButtons", si es este identificador
     que ya tenía, vamos a ver como luce, está aquí uno y aquí el otro, no los veo, necesito
     para renderizarlo, poderlo visualizar directamente, en el dispositivo ejecutándose.
+
+
+
+Commit17: Structure MVP RecipeList
+
+
+Comenzamos a desarrollar la estructura MVP para usarla por lo que definimos nuevo paquetes quedando de la siguiente manera
+
+-recipelist
+    -events
+        RecipeListEvent
+    -ui
+        RecipeListView
+        RecipeListInteractor
+        RecipeListRepository
+        RecipeListPresenter
+        StoredRecipesInteractor
+
+Explicación
+
+    En RecipeListView
+        Entonces voy a tener un listado y ese listado, puede ser actualizado, cuando
+        presionan sobre favoritos, o puede ser que borre un elemento, entonces cuando ocurre
+        eso, tengo que borrarlo también del listado, entonces vamos a poner
+
+            "void setRecipesList(recipe)  data" cuando recibo los datos inicialmente
+            "recipeUpdate" cuando estoy modificando un favorito
+            "recipeDelete" cuando estoy eliminando "recipe" algún elemento,
+
+
+        public interface RecipeListView {
+            void setRecipes(List<Recipe> data);
+            void recipeUpdated();
+            void recipeDeleted(Recipe recipe);
+
+    En RecipeListPresenter
+
+    Aquí tenemos
+        "onCreate" "onDestroy", para registrar y deregistrar además de devolver la vista nula
+        "getRecipes" para obtener que tengo en la base de datos
+        "removeRecipe" cuando el usuario presiona que quiere borrarlo
+        "void toggleFavorite" que recibe también un "recipe"
+        "RecipeListView" con objetivos de "testing" al igual que lo hicimos en el otro modulo
+        "onEvent(MainThread)" que recibe un "recipeListEvent"
+
+
+    En Interactuadores
+        podría haber hecho tres interactuadores,
+        se me hizo mucho, lo voy a dejar en dos, uno para obtener, uno que lee, y otro escribe
+        a la base de datos, actualizando o eliminando alguno de los elementos
+
+        Interactuador "recipeListInteractor"
+            que este va ir a traer los elementos(Leer)le llamamos "void execute" a su método
+
+        Interactuador "StoreRecipeInteractor",
+            la diferencia va ser que este, ambos están
+            actuando sobre lo que está guardado
+                "execute", para actualizar,
+                "update" recibe un "recipe"
+                 "executeDelete" , por ultimo vamos
