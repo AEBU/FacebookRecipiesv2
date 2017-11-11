@@ -1,0 +1,107 @@
+[33mcommit e1f68163ba83e691682ad672c1795d85e9819d72[m
+Author: Alexis Bautista <rhack_100@outlook.com>
+Date:   Fri Nov 10 13:26:32 2017 -0500
+
+    :MVP_RecipeList_Commit17
+
+[33mcommit 83ca17e2e1b7e0e564f9d2c385cbc450af2d770e[m
+Author: Alexis Bautista <rhack_100@outlook.com>
+Date:   Fri Nov 10 12:49:53 2017 -0500
+
+    :List_layout
+
+[33mcommit 77e86a2afc31c7447774fb3d72180dff5f7c625e[m
+Author: Alexis Bautista <rhack_100@outlook.com>
+Date:   Wed Nov 8 18:57:25 2017 -0500
+
+    :Animation_Swipe
+
+[33mcommit 13f02f4bdc4a0a7035aadea0a6dfd78856a409cd[m
+Author: Alexis Bautista <rhack_100@outlook.com>
+Date:   Wed Nov 8 17:42:03 2017 -0500
+
+    _IssuesFacebook_MainInyection
+
+[33mcommit 2e4ada6db98645ae4fed709b428e46a08a7ada1c[m
+Author: Alexis Bautista <rhack_100@outlook.com>
+Date:   Wed Nov 1 17:44:42 2017 -0500
+
+    :RepositoryImpl
+
+[33mcommit 9f334b538db711021a3b7bea4b33b424a5a371ac[m
+Author: Alexis Bautista <rhack_100@outlook.com>
+Date:   Tue Oct 31 16:20:10 2017 -0500
+
+    :InteractorsImpl
+
+[33mcommit 7b9c82dddb1670acf3764f277a4fbbfd625be0d2[m
+Author: Alexis Bautista <rhack_100@outlook.com>
+Date:   Tue Oct 31 16:03:02 2017 -0500
+
+    :Presenter_Event
+
+[33mcommit 5aaedc08b295f555c1f1482baaaa07b2a29ca777[m
+Author: Alexis Bautista <rhack_100@outlook.com>
+Date:   Sat Oct 28 09:21:42 2017 -0500
+
+    :Main_Activity_Menu_Image_Loader
+
+[33mcommit b18fd74009913e3e0403a8ba22a295da956f7d27[m
+Author: Alexis Bautista <rhack_100@outlook.com>
+Date:   Thu Oct 26 15:36:00 2017 -0500
+
+    :RecipeMainActivity_functions
+
+[33mcommit 4fff7a4581ec80610bb692d423f9bfe97f9bcaca[m
+Author: Alexis Bautista <rhack_100@outlook.com>
+Date:   Wed Oct 25 12:30:56 2017 -0500
+
+    :MVP_RecipeMain
+
+[33mcommit 56b98f45ac3afccd791dbb31ded00c315b2e0d28[m
+Author: Alexis Bautista <rhack_100@outlook.com>
+Date:   Wed Oct 25 11:36:56 2017 -0500
+
+    :LayoutRecipeMain
+
+[33mcommit d24c9ffbfa637e544dd437bebcb17aab0e86ec2d[m
+Author: Alexis Bautista <rhack_100@outlook.com>
+Date:   Tue Oct 24 11:42:46 2017 -0500
+
+    :LoginConfigFacebook
+
+[33mcommit b742e35beae16f6563e60a2c69de9cb2da15be84[m
+Author: Alexis Bautista <rhack_100@outlook.com>
+Date:   Tue Oct 24 09:53:33 2017 -0500
+
+    LoginLayout
+
+[33mcommit 55c0a830ccf3324d01bba6e3135d1597241ea9f8[m
+Author: Alexis Bautista <rhack_100@outlook.com>
+Date:   Tue Oct 24 09:28:14 2017 -0500
+
+    :SetupLibs
+
+[33mcommit 0008f1ff06ab60c029e8d73b9f70b4054159a118[m
+Author: Alexis Bautista <rhack_100@outlook.com>
+Date:   Tue Oct 24 08:33:50 2017 -0500
+
+    :setupAPI_Retrofit
+
+[33mcommit a70a41b60fa6be5df79adf8b9f88f5cf9465b375[m
+Author: Alexis Bautista <rhack_100@outlook.com>
+Date:   Mon Oct 23 14:44:57 2017 -0500
+
+    :ConfigPojo_DB
+
+[33mcommit 706eca99c6b50f98c43eda4ab1e78dee473a359e[m
+Author: Alexis Bautista <rhack_100@outlook.com>
+Date:   Fri Oct 20 14:15:09 2017 -0500
+
+    :initializeFacebook
+
+[33mcommit 5501a9376f58d5cd9e85fcac7acd280f2c924ec2[m
+Author: Alexis Bautista <rhack_100@outlook.com>
+Date:   Fri Oct 20 11:37:45 2017 -0500
+
+    :init

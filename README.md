@@ -1852,3 +1852,323 @@ Explicación
                 "execute", para actualizar,
                 "update" recibe un "recipe"
                  "executeDelete" , por ultimo vamos
+
+
+Commit19
+            :Config_Adapter
+
+        procedemos a trabjar en el adapters porl o que usamos la estructura
+        -recipelist
+            -ui
+                -adapters
+                    -onItemClickListener(interface)
+
+
+
+
+        En onItemClickListener
+
+
+            Vamos a implementar a que le puedo hacer "clic"
+
+            Un "Favorite" como onFavClick tengo que recibir el objeto "recipe"
+
+            Un "delete", tengo que recibir también el objeto "recipe"
+
+            Un "itemClick" para poder hacer click sobre el elemento sobre tal que también recibe el objeto
+
+            public interface OnItemClickListener {
+                void onFavClick(Recipe recipe);
+                void onItemClick(Recipe recipe);
+                void onDeleteClick(Recipe recipe);
+
+            }
+
+        Puedo hacer clic, también sobre los botones de "Facebook" pero como
+        tiene un manejo ligeramente diferente diferente, no los voy a colocar aquí en mi interface,
+        sino los voy a trabajar directamente desde el adaptador.
+
+
+
+
+
+
+Comenzamos creando el recipes Adapter
+        Con los lineamentos que ya hemos seguido pues comenzamos a realizarlos
+
+
+        Vamos a tener
+            "private List" "recipeList" para manejar mi "dataSet"
+            "private ImageLoader" para cargar las imágenes
+            "private OnItemClickListener" "ClickListener" que obtenemos todo a través del constructor
+
+    private List<Recipe> recipeList;
+    private ImageLoader imageLoader;
+    private OnItemClickListener onItemClickListener;
+
+        Ya que tengo este "RecipeList" definido, vamos aquí a devolver el tamaño
+        y vamos a agregar un par de métodos que me ayudan, para el mantenimiento es decir agregar
+        o quitar,
+
+
+    @Override
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.element_stored_recipes, parent, false);
+        return new ViewHolder(v);
+    }
+
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        Recipe currentRecipe = recipeList.get(position);
+        imageLoader.load(holder.imgRecipe,currentRecipe.getImageURL());
+        holder.txtRecipeName.setText(currentRecipe.getTitle());
+        holder.imgFav.setTag(currentRecipe.isFavorite());//perimite poner un objeto asociado a un lemento, en este caso el elemento es el bot'on de favorito, con esto voy a ver a la hora de hacer la prueba eque valor tiene el HOLDER
+        if (currentRecipe.isFavorite()){
+            holder.imgFav.setImageResource(android.R.drawable.btn_star_big_on);
+        }else   holder.imgFav.setImageResource(android.R.drawable.btn_star_big_off);
+
+        holder.setOnItemClickListener(currentRecipe,onItemClickListener);
+    }
+
+
+        lo vamos a tener
+                "public void setRecipes" que recibe una lista de "recipe"
+                y lo que voy a hacer asignarla, "this.recipeList = Recipes" y notifico que cambiaron los datos,
+
+                  public void setRecipes(List<Recipe> recipe) {
+                        this.recipeList = recipe;
+                        notifyDataSetChanged();
+                    }
+
+                "void removeRecipe(Recipe recipe)" este es para borrar, entonces cuando borro
+                vamos a ver si "recipeList.remove(recipe)" y quito el objeto, recordemos que en "recipe"
+                implemente un método "Equals" que me va ayudar para esto y también tengo que notificar el
+                cambio de datos
+
+                 public void removeRecipe(Recipe recipe) {
+                    recipeList.remove(recipe);
+                    notifyDataSetChanged();
+                }
+
+
+                En "onCreateViewHolder" aquí vamos a inflar, a partir del "Layout"
+                que definí, es ese "element_stored_recipes" y voy a devolver un "new ViewHolder" a partir
+                de esta vista
+
+
+                En "onBindViewHolder" aquí vamos a obtener cual es la receta actual
+                "CurrentRecipe" ahora sí, "recipeList.get" en base a la posición que estoy recibiendo
+                como un parámetro y que vamos a hacer, vamos a cargar con el "ImageLoader" utilizando un
+                "ImageView" que está en el "Holder" "ImageRecipe" todavía no la tengo, vamos a crear eso, entonces
+                voy a darle aquí, que me haga una inyección de "ButterKnife" generando a partir de este "Layout" lo va poner en el
+                "Adapter" y lo voy a mover al "ViewHolder"
+                        tengo un "ImageView"
+                        un "TextView"
+                        dos "ImageButton"
+                        el "Layout" no me interesa,
+                        "share" y el "send" confirmamos y solo lo vamos a cortar de aquí
+                        y a pegar en el "ViewHolder"
+                entonces ahora si puedo hacer "Holder.imageRecipe" y el "URL"
+                lo voy a sacar del "currentRecipe" con "getImageURL" luego vamos a modificar "holder." el título
+                "txtRecipeName.setText" y aquí hacemos "currentRecipe.getTitle"
+
+                    @BindView(R.id.imgRecipe)
+                    ImageView imgRecipe;
+                    @BindView(R.id.txtRecipeName)
+                    TextView txtRecipeName;
+                    @BindView(R.id.imgFav)
+                    ImageButton imgFav;
+                    @BindView(R.id.imgDelete)
+                    ImageButton imgDelete;
+                    @BindView(R.id.fbShare)
+                    ShareButton fbShare;
+                    @BindView(R.id.fbSend)
+                    SendButton fbSend;
+
+
+                Ahora vamos a poner también la imagen de
+                favorito, pero esto lo vamos a condicionar con el objetivo de poder testear, que imagen
+                es la que se está mostrando, vamos a aquí a usar el "tag" permite poner
+                un objeto asociado a un "elemento" en este caso el elemento, es, el botón de favorito
+                y lo que le vamos a poner es "currentRecipe.getFavorite" entonces con eso voy a poder saber, a la hora
+                de hacer la prueba, qué valor tiene el "holder" y voy asumir que ese "tag" guardado sobre
+                la imagen, es precisamente el recurso que está mostrando, entonces vamos a condicionar
+                aquí,
+
+                Que si el "currentRecipen.getFavorite" es verdadero, entonces vamos a cambiar el
+                recurso, "holder.ImageFav.setImageResource" entonces ya le puedo decir "android.R.Drawable"
+                ósea
+                    si es un favorito, "btn_star_big_on" de lo contrario, que haga lo mismo, pero con
+                    "big_off" entonces a través de este "tag" voy a poder probar más adelante si está
+                    cambiando o no el recurso
+
+                por último hacemos un "holder.set" tampoco existe el método,
+                vamos hacerlo "setOnItemClickListener" y le envío el "currentRecipe" y le envío el "onItemClickListener"
+                que tengo por aquí, como no existe vamos a crearlo y estamos listos, ahora a trabajar
+                en el "ViewHolder".
+
+
+        Entonces en el "ViewHolder" vamos a definir un "private View" aquí que
+        vamos a asignar en el constructor a "ItemView" y también vamos hacer la inyección de "ButterKnife"
+        no está en otro lado, no no la tengo "ButterKnife.bind(this, view)" estoy utilizando el elemento que acabo
+        de asignar y en el método "setOnItemClickListener" ambos tienen que ser finales, porque los vamos
+        a trabajar desde una clase interna vamos a decir "view.setOnClickListener" instanciamos
+        un "onItemClickListener" "Listener" no se llama "onItemClick.onItemClick" y necesito
+        enviarle el "currentRecipe" esto para el "Click" en el elemento general, voy a tener que hacer
+        algo similar para cuando es favorito "imageFav.setOnClickListener(new View)" etcétera
+        Aquí voy a decir "onItemClickListener.OnFavClick" y le envío también el "(currentRecipe)"
+        lo mismo para cuando se borra, "setOnClickListener(new  ViewOnClickListener)" etcétera y llamo al "onItemClickListener.onDeleteClick" y le envío
+        también el "currentRecipe" eso es para los tres elementos que yo voy a estar manejando
+
+ public void setOnItemClickListener(final Recipe currentRecipe, final OnItemClickListener onItemClickListener) {
+            view.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v) {
+                    onItemClickListener.onItemClick(currentRecipe);
+                }
+            });
+            imgFav.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onItemClickListener.onItemClick(currentRecipe);
+                }
+            });
+
+            imgDelete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onItemClickListener.onDeleteClick(currentRecipe);
+                }
+            });
+
+
+        En el caso de los botones de "Facebook" necesito ponerle un contenido o me van a aparecer
+        deshabilitados, entonces voy a instanciar aquí un "ShareLinkContent" este es de "Facebook"
+        le llamamos "content" "new ShareLinkContent.Builder" y sobre este sobre este vamos hacer "setContentUrl" noten que tengo otras cosas
+        que le podría tener, la descripción, el título, el URL, de hecho podría ponerle
+        las tres, pero el que más me interesa en este caso es el URL, para poder decir "Url.parse."
+        "currentRecipe.getSourceURL" y por ultimo "Build"
+
+        entonces ya tengo el
+        contenido y ahora lo tengo que asignar puedo hacer "fbShare.setShareContent" y le envío este contenido, lo mismo con "fbSend.SetShareContent.setShareContent (content)"
+
+        Con esto nuestro adaptador está listo, ya tenemos asignado los "Click",
+        ya tenemos asignado los "render" que es lo que se muestra y podemos continuar con el
+        siguiente paso de la implementación.
+
+            ShareLinkContent content = new ShareLinkContent.Builder()
+                    .setContentUrl(Uri.parse(currentRecipe.getSourceURL()))
+                    //.setQuote()
+                    .build();
+            fbShare.setShareContent(content);
+            fbSend.setShareContent(content);
+
+
+
+
+
+
+Commit19
+
+        :Recipe_List_Activity_Setups
+
+Vamos a configurar la actividad para implemetar los setups dentro de esta, cmo lo ponemos:
+
+        -Butterknife.bind(this), con RecyclerView, Toolbar
+        -setupToolbar
+        -setupRecyclerView
+        -setupInjection
+
+
+Con esto podemos trabjar con la implementación del presentador
+
+        Definimos
+            -"recipeAdapter"
+            -"presenter"
+
+
+        Definimos la lógica
+
+            en onCreate
+                ...
+                presenter.onCreate
+                presenter.getRecipes
+
+            en "setupToolbar"
+                hacemos un "setSupportActionBar" "Toolbar"
+
+            además vamos a agregar un método
+            "public void onToolbarClick" decorado con el identificador del "Toolbar" para que cuando
+            le hagan  "onClick" y aquí lo que vamos hacer es "RecyclerView.smoothScrollToPosition(0)"
+            para que este en la parte superior en el momento que le hacen "Click"
+
+
+            en onDestroy
+
+                "Presenter.onDestroy" y vamos a sobrecargar también
+
+
+            "onCreateOptionsMenu"
+                el menú que voy a mostrar, tanto el icono para volver a la pantalla principal, como "Logout" entonces
+                ponemos aquí el contenido
+
+
+            En menu_recipes_list
+                Es una parte igual a menu_recipes_main
+
+                Vamos a ponerle "ic_menu_gallery" para que me muestre
+                el dibujito adecuado y en vez de "menu.action.list" le vamos a poner "menuactionmain" aunque esto
+                no se ve, siempre es una buena idea que lo tenga, le vamos a poner, elegir receta
+
+
+            En onOptionsItemSelected
+                Cambiamos el id con actionMain para diferenciarlo de loq ue copiamos de RecipeMain
+
+
+            En navigateToMainScreen
+                lo mandamos a RecipeMainActivity
+
+
+
+            En setupRecyclerView
+                vamos a poner "recyclerView.setLayoutManager(new GridLayoutManager)" y queremos dos columnas
+                además le vamos a decir "setAdapter" y el adaptador que ya tenemos definido, con esto tenemos la actividad lista
+
+
+Nos hace falta que implemente a la vista, entonces le damos "implement RecipeListView" lo cual
+nos va obligar a tener tres métodos más "setRecipe" "recipeUpdate" "recipeDelete"
+
+
+            En  "setRecipe"
+                vamos a llamar al adaptador "adapter.setRecipes" y le enviamos lo mismo
+                que recibimos,
+
+            En "recipeUpdate"
+                De forma similar se lo enviamos al, de hecho no hay
+                que enviarle nada, porque lo va cambiar el repositorio, solo le avisamos al adaptador
+                que cambiaron esos datos
+
+            En "Delete"
+                vamos a decir "adapter.RemoveRecipe" y le enviamos
+                lo que estamos borrando, en el caso de "set" y "recipe" y "removeRecipe" dentro del adaptador,
+                se está actualizando
+
+
+Ahora, me hace falta, la implementación del "ClickListener" "onItemClickListener"
+lo que nos implica, tener tres métodos más, "onFav" "onDelete" "onItem", "onFavClick"
+
+
+            En onFav
+                Voy a apoyarme en el presentador y voy a decir "toggleFavorite" sobre este "recipe"
+
+            En "onDelete"
+                de forma similar voy a apoyarme sobre el presentador y "RemoveRecipe"
+
+            En "onItemClick"
+                voy a abrir el "URL" que tiene como "sourceUrlRecipe" entonces vamos hacer un
+                "Intent intent = new  Intent(Intent.ACTION_VIEW, Url.parse.getSourceURL)" y luego iniciamos la actividad en base a este
+                "intent" con esto tenemos lista nuestra vista, pero todavía no podemos probarlo, porque
+                no tenemos un adaptador ni tampoco un presentador es decir, van a ver muchos "nulls" por aquí,
+                nuestro siguiente paso entonces, va ser probar, si esta implementación que llevamos hasta
+                el momento.
