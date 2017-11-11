@@ -2069,7 +2069,7 @@ Comenzamos creando el recipes Adapter
 
 
 
-Commit19
+Commit20
 
         :Recipe_List_Activity_Setups
 
@@ -2087,6 +2087,8 @@ Con esto podemos trabjar con la implementación del presentador
             -"recipeAdapter"
             -"presenter"
 
+    RecipesAdapter adapter;
+    RecipeListPresenter presenter;
 
         Definimos la lógica
 
@@ -2095,14 +2097,32 @@ Con esto podemos trabjar con la implementación del presentador
                 presenter.onCreate
                 presenter.getRecipes
 
+
+                @Override
+                protected void onCreate(Bundle savedInstanceState) {
+                    super.onCreate(savedInstanceState);
+                    setContentView(R.layout.activity_recipe_list);
+                    ButterKnife.bind(this);
+                    setupToolbar();
+                    setupRecyclerView();
+                    setupInjection();
+                    presenter.onCreate();
+                    presenter.getRecipes();
+                }
             en "setupToolbar"
                 hacemos un "setSupportActionBar" "Toolbar"
-
-            además vamos a agregar un método
+                    private void setupToolbar() {
+                        setSupportActionBar(toolbar);
+                    }
+            Además vamos a agregar un método
             "public void onToolbarClick" decorado con el identificador del "Toolbar" para que cuando
             le hagan  "onClick" y aquí lo que vamos hacer es "RecyclerView.smoothScrollToPosition(0)"
             para que este en la parte superior en el momento que le hacen "Click"
 
+                    @OnClick(R.id.toolbar)
+                    public void onToolbarClick(){
+                        recyclerView.smoothScrollToPosition(0);
+                    }
 
             en onDestroy
 
@@ -2113,6 +2133,11 @@ Con esto podemos trabjar con la implementación del presentador
                 el menú que voy a mostrar, tanto el icono para volver a la pantalla principal, como "Logout" entonces
                 ponemos aquí el contenido
 
+                    @Override
+                    public boolean onCreateOptionsMenu(Menu menu) {
+                        getMenuInflater().inflate(R.menu.menu_recipes_list,menu);
+                        return super.onCreateOptionsMenu(menu);
+                    }
 
             En menu_recipes_list
                 Es una parte igual a menu_recipes_main
@@ -2121,19 +2146,52 @@ Con esto podemos trabjar con la implementación del presentador
                 el dibujito adecuado y en vez de "menu.action.list" le vamos a poner "menuactionmain" aunque esto
                 no se ve, siempre es una buena idea que lo tenga, le vamos a poner, elegir receta
 
+                            <?xml version="1.0" encoding="utf-8"?>
+                            <menu xmlns:android="http://schemas.android.com/apk/res/android"
+                                xmlns:app="http://schemas.android.com/apk/res-auto"
+                                xmlns:tools="http://schemas.android.com/tools"
+                                tools:context=".recipemain.ui.RecipeMainActivity">
+                                <item
+                                    android:id="@+id/action_main"
+                                    android:title="@string/recipemain.menu.action.main"
+                                    android:icon="@android:drawable/ic_menu_gallery"
+                                    app:showAsAction="always" />
 
+                                <item
+                                    android:id="@+id/action_logout"
+                                    android:title="@string/global.menu.action.logout"
+                                    app:showAsAction="never" />
+                            </menu>
             En onOptionsItemSelected
                 Cambiamos el id con actionMain para diferenciarlo de loq ue copiamos de RecipeMain
+                        @Override
+                        public boolean onOptionsItemSelected(MenuItem item) {
+                            int id = item.getItemId();
 
+                            if (id == R.id.action_main) {
+                                navigateToMainScreen();
+                                return true;
+                            } else if (id == R.id.action_logout) {
+                                logout();
+                                return true;
+                            }
+                            return super.onOptionsItemSelected(item);
+                        }
 
             En navigateToMainScreen
                 lo mandamos a RecipeMainActivity
 
 
-
+                        private void navigateToMainScreen() {
+                            startActivity(new Intent(this, RecipeMainActivity.class));
+                        }
             En setupRecyclerView
                 vamos a poner "recyclerView.setLayoutManager(new GridLayoutManager)" y queremos dos columnas
                 además le vamos a decir "setAdapter" y el adaptador que ya tenemos definido, con esto tenemos la actividad lista
+                    private void setupRecyclerView() {
+                        recyclerView.setLayoutManager(new GridLayoutManager(this,2));
+                        recyclerView.setAdapter(adapter);
+                    }
 
 
 Nos hace falta que implemente a la vista, entonces le damos "implement RecipeListView" lo cual
@@ -2144,16 +2202,32 @@ nos va obligar a tener tres métodos más "setRecipe" "recipeUpdate" "recipeDele
                 vamos a llamar al adaptador "adapter.setRecipes" y le enviamos lo mismo
                 que recibimos,
 
+                        @Override
+                        public void setRecipes(List<Recipe> data) {
+                            adapter.setRecipes(data);
+                        }
+
             En "recipeUpdate"
                 De forma similar se lo enviamos al, de hecho no hay
                 que enviarle nada, porque lo va cambiar el repositorio, solo le avisamos al adaptador
                 que cambiaron esos datos
+
+
+                        @Override
+                        public void recipeUpdated() {
+                            adapter.notifyDataSetChanged();
+                        }
 
             En "Delete"
                 vamos a decir "adapter.RemoveRecipe" y le enviamos
                 lo que estamos borrando, en el caso de "set" y "recipe" y "removeRecipe" dentro del adaptador,
                 se está actualizando
 
+
+                        @Override
+                        public void recipeDeleted(Recipe recipe) {
+                            adapter.removeRecipe(recipe);
+                        }
 
 Ahora, me hace falta, la implementación del "ClickListener" "onItemClickListener"
 lo que nos implica, tener tres métodos más, "onFav" "onDelete" "onItem", "onFavClick"
@@ -2162,8 +2236,20 @@ lo que nos implica, tener tres métodos más, "onFav" "onDelete" "onItem", "onFa
             En onFav
                 Voy a apoyarme en el presentador y voy a decir "toggleFavorite" sobre este "recipe"
 
+                    @Override
+                    public void onFavClick(Recipe recipe) {
+                        presenter.toggleFavorite(recipe);
+                    }
+
+
             En "onDelete"
                 de forma similar voy a apoyarme sobre el presentador y "RemoveRecipe"
+
+                    @Override
+                    public void onItemClick(Recipe recipe) {
+                        Intent intent=new Intent(Intent.ACTION_VIEW, Uri.parse(recipe.getSourceURL()));
+                        startActivity(intent);
+                    }
 
             En "onItemClick"
                 voy a abrir el "URL" que tiene como "sourceUrlRecipe" entonces vamos hacer un
@@ -2172,3 +2258,7 @@ lo que nos implica, tener tres métodos más, "onFav" "onDelete" "onItem", "onFa
                 no tenemos un adaptador ni tampoco un presentador es decir, van a ver muchos "nulls" por aquí,
                 nuestro siguiente paso entonces, va ser probar, si esta implementación que llevamos hasta
                 el momento.
+                    @Override
+                    public void onDeleteClick(Recipe recipe) {
+                        presenter.removeRecipe(recipe);
+                    }

@@ -27,9 +27,9 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import ec.edu.lexus.facebookrecipies.FacebookRecipesApp;
 import ec.edu.lexus.facebookrecipies.R;
-import ec.edu.lexus.facebookrecipies.RecipeListActivity;
 import ec.edu.lexus.facebookrecipies.entities.Recipe;
 import ec.edu.lexus.facebookrecipies.lib.base.ImageLoader;
+import ec.edu.lexus.facebookrecipies.recipelist.ui.RecipeListActivity;
 import ec.edu.lexus.facebookrecipies.recipemain.RecipeMainPresenter;
 import ec.edu.lexus.facebookrecipies.recipemain.di.RecipeMainComponent;
 
