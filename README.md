@@ -2262,3 +2262,75 @@ lo que nos implica, tener tres métodos más, "onFav" "onDelete" "onItem", "onFa
                     public void onDeleteClick(Recipe recipe) {
                         presenter.removeRecipe(recipe);
                     }
+
+
+Commit21
+            :Prueba_Adapter
+
+
+Vamos a realizar la prueba de nuestro adaptador para ver si quedo bien con
+datos, que no son los reales, como lo probamos,
+        necesitamos un adaptador y
+        un presentador
+
+El adaptador necesita
+        un listado,
+        un ImageLoader,
+        onItemClickListener,
+
+Entonces yo tengo aquí, preparadas un par de cosas, vamos
+a cargar un ImageLoader, esto solo para la prueba
+
+Un solo Recipe, para la prueba
+y en base a esto construimos el Adapter, "new RecipesAdapter" le envió
+"arrays.asList" lo que le envió es únicamente este "recipe" luego el
+"imagenLoader" y por último el "onItemClickListener" es "this" y el
+presentador para no tener "null pointer exception" vamos a hace un "new recipe
+list presenter" con todo implementado y lo vamos a ejecutar
+
+
+    private void setupInjection() {
+        ImageLoader loader= new GlideImageLoader(Glide.with(this));
+        Recipe recipe=new Recipe();
+        recipe.setFavorite(false);
+        recipe.setTitle("Preuba");
+        recipe.setImageURL("http://static.food2fork.com/icedcoffee5766.jpg");
+        recipe.setSourceURL("http://static.food2fork.com/icedcoffee5766.jpg");
+        adapter= new RecipesAdapter(Arrays.asList(recipe),loader,this);
+        presenter = new RecipeListPresenter() {
+            @Override
+            public void onCreate() {
+
+            }
+
+            @Override
+            public void onDestroy() {
+
+            }
+
+            @Override
+            public void getRecipes() {
+
+            }
+
+            @Override
+            public void removeRecipe(Recipe recipe) {
+
+            }
+
+            @Override
+            public void toggleFavorite(Recipe recipe) {
+
+            }
+
+            @Override
+            public void onEventMainThread(RecipeListEvent event) {
+
+            }
+
+            @Override
+            public RecipeListView getView() {
+                return null;
+            }
+        };
+    }

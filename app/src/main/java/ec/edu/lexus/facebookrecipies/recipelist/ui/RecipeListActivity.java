@@ -10,6 +10,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.bumptech.glide.Glide;
+
+import java.util.Arrays;
 import java.util.List;
 
 import butterknife.BindView;
@@ -18,7 +21,10 @@ import butterknife.OnClick;
 import ec.edu.lexus.facebookrecipies.FacebookRecipesApp;
 import ec.edu.lexus.facebookrecipies.R;
 import ec.edu.lexus.facebookrecipies.entities.Recipe;
+import ec.edu.lexus.facebookrecipies.lib.GlideImageLoader;
+import ec.edu.lexus.facebookrecipies.lib.base.ImageLoader;
 import ec.edu.lexus.facebookrecipies.recipelist.RecipeListPresenter;
+import ec.edu.lexus.facebookrecipies.recipelist.events.RecipeListEvent;
 import ec.edu.lexus.facebookrecipies.recipelist.ui.adapters.OnItemClickListener;
 import ec.edu.lexus.facebookrecipies.recipelist.ui.adapters.RecipesAdapter;
 import ec.edu.lexus.facebookrecipies.recipemain.ui.RecipeMainActivity;
@@ -39,8 +45,8 @@ public class RecipeListActivity extends AppCompatActivity implements RecipeListV
         setContentView(R.layout.activity_recipe_list);
         ButterKnife.bind(this);
         setupToolbar();
-        setupRecyclerView();
         setupInjection();
+        setupRecyclerView();
         presenter.onCreate();
         presenter.getRecipes();
     }
@@ -80,6 +86,49 @@ public class RecipeListActivity extends AppCompatActivity implements RecipeListV
     }
 
     private void setupInjection() {
+        ImageLoader loader= new GlideImageLoader(Glide.with(this));
+        Recipe recipe=new Recipe();
+        recipe.setFavorite(false);
+        recipe.setTitle("Preuba");
+        recipe.setImageURL("http://static.food2fork.com/icedcoffee5766.jpg");
+        recipe.setSourceURL("http://static.food2fork.com/icedcoffee5766.jpg");
+        adapter= new RecipesAdapter(Arrays.asList(recipe),loader,this);
+        presenter = new RecipeListPresenter() {
+            @Override
+            public void onCreate() {
+
+            }
+
+            @Override
+            public void onDestroy() {
+
+            }
+
+            @Override
+            public void getRecipes() {
+
+            }
+
+            @Override
+            public void removeRecipe(Recipe recipe) {
+
+            }
+
+            @Override
+            public void toggleFavorite(Recipe recipe) {
+
+            }
+
+            @Override
+            public void onEventMainThread(RecipeListEvent event) {
+
+            }
+
+            @Override
+            public RecipeListView getView() {
+                return null;
+            }
+        };
     }
 
     private void setupRecyclerView() {
