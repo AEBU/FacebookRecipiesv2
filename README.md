@@ -2446,3 +2446,49 @@ En storedRecipesInteractor
     que es el que trae de los datos almacenados dentro de la BD de nuestro proyecto
     las interacciones que tenemso dentro de nuestro interactuador
 
+
+Commit24:
+
+    Implementation_RepositoryImpl
+
+Para implementar el repositorio pues solo tenemos que hacer la llamada a EventBus para tomar la logica desde este punto
+Definimos los metodos que ya tenemos definidos y comenzamos:
+
+Tenemos posteado  los dos eventos para encapsular estos métodos, por lo que el primero posteal al bus de eventos y el segundo postea solo cuando hay un update
+
+    //este nos sirve para el Read y el delete
+    private void  post(int type, List<Recipe> recipes){
+        RecipeListEvent event=new RecipeListEvent();
+        event.setType(type);
+        event.setRecipeList(recipes);
+        eventBus.post(event);
+    }
+    //este nos sirve para el Update`
+    private void post(){
+        post(RecipeListEvent.UPDATE_EVENT,null);
+    }
+
+En updateRecipe
+
+    @Override
+    public void updateRecipe(Recipe recipe) {
+        recipe.update();
+        post();
+    }
+
+En removeRecipe
+
+    @Override
+    public void removeRecipe(Recipe recipe) {
+        recipe.delete();
+        post(RecipeListEvent.DELETE_EVENT, Arrays.asList(recipe));
+    }
+
+En SaveRecipe
+
+       @Override
+       public void getSaveRecipes() {
+           //esto se puede pasar a una clase RecipeConsultHelper, o DBREcipeHelper
+           List<Recipe> recipes = new Select().from(Recipe.class).queryList();
+           post(RecipeListEvent.READ_EVENT,recipes);
+       }
