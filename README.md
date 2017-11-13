@@ -2334,3 +2334,94 @@ list presenter" con todo implementado y lo vamos a ejecutar
             }
         };
     }
+
+
+Commit22 :
+        MainListPresenterImpl_Event
+Tramtamos de dar la lógica directa para poder usarla, de acuerdo a que la capa del interactuador sea el que use la parte de
+recuperar datos ya sea desde la base como desde una api externa en donde puedo usarla.
+Cremos la respectiva lógica de presentador para usar la implementación de nuestras clases siguiendo el siguinte esquema
+
+-recipeMainList
+    -recipeListpresenterImpl
+
+
+En esta clase necesitaremos
+    -eventBus
+    -recipeListView
+    -recipeListInteractor
+    -StoredRecipesInteractor
+
+EN los métodos
+
+    en onCreate
+        registramos el bus de eventos
+            public void onCreate() {
+                eventBus.register(this);
+            }
+
+    en onDestroy
+        deregistrarme y volver nula la vista
+
+        public void onDestroy() {
+                eventBus.unregister(this);
+                view=null;
+            }
+    en getRecipes
+        me va permitir llamar al interactuador "execute"
+        que es del RecipeListInteractor
+            public void getRecipes() {
+                recipeListInteractor.execute();
+            }
+
+    en "RemoveRecipe"
+        me va permitir, usar el otro interactuador "storedInteractor" y vamos a dar un "executeDelete" enviando "recipe"
+
+    public void removeRecipe(Recipe recipe) {
+        storedRecipesInteractor.executeDelete(recipe);
+    }
+
+    en "toggleFavorite"
+        Acá agregamos el cambio de boolean fav = recipe.getFavorite,  y recipe.setFavorite, dándole
+        la negación de lo que teníamos inicialmente de tal forma que el presentador lo está cambiando y las demás capas se encargan de guardarlo eventualmente.
+        de una forma similar "executeUpdate" enviándole el "recipe"
+    public void toggleFavorite(Recipe recipe) {
+        boolean fav=recipe.isFavorite();
+        recipe.setFavorite(!fav);
+        storedRecipesInteractor.executeUpdate(recipe);
+    }
+
+    en "getView"
+        me va servir para las pruebas, voy a devolver la vista
+    public RecipeListView getView() {
+        return this.view;
+    }
+
+
+    en "onEventMainThread"
+        que tiene que tener una suscripción para el manejo
+        de eventos
+        Verificamos si la vista es diferente de null y como tenenmos tres tipos de eventos pues podemos tomar un switch para este trámite
+        dependiendo de los csasos por ejemplo
+
+            switch (event.getType()){
+                case RecipeListEvent.READ_EVENT:
+                    view.setRecipes(event.getRecipeList());//enviamos la lista de eventos obtenidos
+                    break;
+                case RecipeListEvent.UPDATE_EVENT:
+                    view.recipeUpdated();// solo actualizamos la vista del recipe que hemos realizado
+                    break;
+                case RecipeListEvent.DELETE_EVENT:
+                    Recipe recipe= event.getRecipeList().get(0);//como estoy recibiendo un listado y solo necesito uno
+                    view.recipeDeleted(recipe);// le envío esto y se acaba
+                    break;
+            }
+
+Para los eventos
+        En RecipeListEvent
+
+            agregamos un tipo
+            agregamos un listado de recipes
+            agregamos los tipos de evento, Read,Update,Delete. como constantes
+
+            agregamos los getters y setters
