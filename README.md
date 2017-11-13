@@ -2425,3 +2425,24 @@ Para los eventos
             agregamos los tipos de evento, Read,Update,Delete. como constantes
 
             agregamos los getters y setters
+
+
+
+Commit23;
+        ListIntercatorsImpl
+
+Definimos los interactuadores, para que funcione de la siguiente manera
+
+En RecipeListInteractorImpl
+    Que es elq ue trae los datos de la api pues, solo tenemos nuestro método del repository
+
+    @Override
+    public void execute() {
+        repository.getSaveRecipes();
+    }
+    que es las recetas que tenemos guardadas
+
+En storedRecipesInteractor
+    que es el que trae de los datos almacenados dentro de la BD de nuestro proyecto
+    las interacciones que tenemso dentro de nuestro interactuador
+
