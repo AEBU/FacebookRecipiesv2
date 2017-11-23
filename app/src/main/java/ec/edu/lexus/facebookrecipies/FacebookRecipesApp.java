@@ -8,6 +8,12 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 
 import ec.edu.lexus.facebookrecipies.lib.di.LibsModule;
 import ec.edu.lexus.facebookrecipies.login.ui.LoginActivity;
+import ec.edu.lexus.facebookrecipies.recipelist.di.DaggerRecipeListComponent;
+import ec.edu.lexus.facebookrecipies.recipelist.di.RecipeListComponent;
+import ec.edu.lexus.facebookrecipies.recipelist.di.RecipeListModule;
+import ec.edu.lexus.facebookrecipies.recipelist.ui.RecipeListActivity;
+import ec.edu.lexus.facebookrecipies.recipelist.ui.RecipeListView;
+import ec.edu.lexus.facebookrecipies.recipelist.ui.adapters.OnItemClickListener;
 import ec.edu.lexus.facebookrecipies.recipemain.di.DaggerRecipeMainComponent;
 import ec.edu.lexus.facebookrecipies.recipemain.di.RecipeMainComponent;
 import ec.edu.lexus.facebookrecipies.recipemain.di.RecipeMainModule;
@@ -55,11 +61,11 @@ public class FacebookRecipesApp extends Application {
                 .build();
     }
 
-//    public RecipeListComponent getRecipeListComponent(RecipeListActivity activity, RecipeListView view, OnItemClickListener onItemClickListener) {
-//        return DaggerRecipeListComponent
-//                .builder()
-//                .libsModule(new LibsModule(activity))
-//                .recipeListModule(new RecipeListModule(view, onItemClickListener))
-//                .build();
-//    }
+    public RecipeListComponent getRecipeListComponent(RecipeListActivity activity, RecipeListView view, OnItemClickListener onItemClickListener) {
+        return DaggerRecipeListComponent
+                .builder()
+                .libsModule(new LibsModule(activity))
+                .recipeListModule(new RecipeListModule(view, onItemClickListener))
+                .build();
+    }
 }

@@ -103,7 +103,7 @@ public class RecipesAdapter extends RecyclerView.Adapter<RecipesAdapter.ViewHold
             imgFav.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    onItemClickListener.onItemClick(currentRecipe);
+                    onItemClickListener.onFavClick(currentRecipe);
                 }
             });
 

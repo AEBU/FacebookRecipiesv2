@@ -24,6 +24,7 @@ import ec.edu.lexus.facebookrecipies.entities.Recipe;
 import ec.edu.lexus.facebookrecipies.lib.GlideImageLoader;
 import ec.edu.lexus.facebookrecipies.lib.base.ImageLoader;
 import ec.edu.lexus.facebookrecipies.recipelist.RecipeListPresenter;
+import ec.edu.lexus.facebookrecipies.recipelist.di.RecipeListComponent;
 import ec.edu.lexus.facebookrecipies.recipelist.events.RecipeListEvent;
 import ec.edu.lexus.facebookrecipies.recipelist.ui.adapters.OnItemClickListener;
 import ec.edu.lexus.facebookrecipies.recipelist.ui.adapters.RecipesAdapter;
@@ -36,8 +37,9 @@ public class RecipeListActivity extends AppCompatActivity implements RecipeListV
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
 
-    RecipesAdapter adapter;
-    RecipeListPresenter presenter;
+    private RecipesAdapter adapter;
+    private RecipeListPresenter presenter;
+    private RecipeListComponent component;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +88,10 @@ public class RecipeListActivity extends AppCompatActivity implements RecipeListV
     }
 
     private void setupInjection() {
-
+        FacebookRecipesApp app=(FacebookRecipesApp)getApplication();
+        component=app.getRecipeListComponent(this,this,this);
+        presenter=getPresenter();
+        adapter=getAdapter();
     }
 
     private void setupRecyclerView() {
@@ -131,5 +136,13 @@ public class RecipeListActivity extends AppCompatActivity implements RecipeListV
     @Override
     public void onDeleteClick(Recipe recipe) {
         presenter.removeRecipe(recipe);
+    }
+
+    public RecipeListPresenter getPresenter() {
+        return component.getPresenter();
+    }
+
+    public RecipesAdapter getAdapter() {
+        return component.getAdapter();
     }
 }

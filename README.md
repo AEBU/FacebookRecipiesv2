@@ -2492,3 +2492,15 @@ En SaveRecipe
            List<Recipe> recipes = new Select().from(Recipe.class).queryList();
            post(RecipeListEvent.READ_EVENT,recipes);
        }
+
+
+Commit25
+        :
+
+
+Postear FacebookMessenger
+https://www.numetriclabz.com/integrate-facebook-messegenger-in-android-application-tutorial/
+https://developers.facebook.com/docs/messenger/android
+
+Issues
+http://docs.apppresser.com/article/329-app-facebook-connect

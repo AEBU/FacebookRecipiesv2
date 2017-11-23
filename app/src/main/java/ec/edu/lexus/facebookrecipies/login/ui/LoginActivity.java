@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -20,6 +21,8 @@ import butterknife.ButterKnife;
 import ec.edu.lexus.facebookrecipies.R;
 import ec.edu.lexus.facebookrecipies.recipemain.ui.RecipeMainActivity;
 
+import static com.facebook.AccessToken.getCurrentAccessToken;
+
 public class LoginActivity extends AppCompatActivity {
 
     @BindView(R.id.btnLogin)
@@ -34,8 +37,10 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
 
+//        if (AccessToken.getCurrentAccessToken().isExpired())
+//            Toast.makeText(this, "eSTA EXPIRADO", Toast.LENGTH_SHORT).show();
         if (AccessToken.getCurrentAccessToken() != null) {
-            AccessToken.getCurrentAccessToken().getToken();
+            String lex = getCurrentAccessToken().getToken();
             navigateToMainScreen();
         }
 
